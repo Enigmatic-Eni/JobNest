@@ -1,8 +1,9 @@
 import React from 'react'
 import { CiSearch } from "react-icons/ci";
 import { CiLocationOn } from "react-icons/ci";
+import { Assets } from '../../assets/Assets';
 
-function SearchGrad() {
+function SearchGradient() {
   return (
     <div>
         <div className="purple-grad bg-gradient-to-r from-theme to-[#130121] py-20 text-white flex flex-col items-center rounded-2xl justify-center">
@@ -26,8 +27,15 @@ function SearchGrad() {
                 </div>
             </div>
         </div>
+
+        <div className="trusted-by flex items-center mt-11 py-7 shadow-sm border-[#bdbaba] gap-9 pl-2 md:pl-8">
+          <p className=' text-text'>Trusted by</p>
+          <img src={Assets.microsoftLogo} alt="Microsoft Logo" />
+          <img src={Assets.walmartLogo} alt="Walmart Logo" />
+          <img src={Assets.accentureLogo} alt="Accenture Logo" className='w-[87px] h-[29px]' />
+        </div>
     </div>
   )
 }
 
-export default SearchGrad
+export default SearchGradient
