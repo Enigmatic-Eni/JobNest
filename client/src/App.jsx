@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
+import JobDescription from './pages/JobDescription'
 
 function App() {
  
@@ -12,6 +13,7 @@ function App() {
     < div className=' font-montserrat'>
    <Routes>
     <Route path='/' element={<Home/>}/>
+    <Route path = 'jobdescription' element={<JobDescription/>}/>
    </Routes>
     </div>
   )
