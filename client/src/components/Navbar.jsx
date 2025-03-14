@@ -1,6 +1,7 @@
 import React from 'react'
 import { Assets } from '../assets/Assets'
 import {useNavigate} from 'react-router-dom'
+import { Button } from './ui/button'
 
 function Navbar() {
 
@@ -14,9 +15,9 @@ function Navbar() {
         <a href='' className=' text-2xl font-bold'>JobNest</a>
         </div>
 
-        <div className="login-button">
+        <div className="login-button space-x-3">
             <a href="" className=' hover:underline'>Recruiter Login</a>
-            <button className=' ml-3 bg-theme text-white px-7 py-2 rounded-4xl cursor-pointer hover:bg-theme-hover'>Register</button>
+            <Button variant="rounded" className=" px-7 py-2 text-base">Register</Button>
         </div>
 
 

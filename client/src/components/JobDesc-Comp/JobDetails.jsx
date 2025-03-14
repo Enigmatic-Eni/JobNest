@@ -4,6 +4,7 @@ import { GoBriefcase } from "react-icons/go";
 import { IoLocationOutline } from "react-icons/io5";
 import { GoPerson } from "react-icons/go";
 import { GrMoney } from "react-icons/gr";
+import { Button } from "../ui/button";
 
 function JobDetails() {
   return (
@@ -36,10 +37,8 @@ function JobDetails() {
       </div>
 
       <div>
-        <button className=" bg-theme hover:bg-theme-hover px-10 py-2.5 text-white rounded-md cursor-pointer mb-3.5">
-          Apply now
-        </button>
-        <p className=" text-sm ">Posted 25 minutes ago</p>
+        <Button variant="base" size="xl">Apply Now</Button>
+        <p className="mt-3.5 text-sm ">Posted 25 minutes ago</p>
       </div>
     </div>
   );

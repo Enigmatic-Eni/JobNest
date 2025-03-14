@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button } from '../ui/button'
 
 function KeyResp() {
   return (
@@ -29,9 +30,7 @@ You will collaborate with cross-functional teams to design, develop, and impleme
 
 </div>
 
-<button className=" bg-theme hover:bg-theme-hover px-10 py-2.5 text-white rounded-md cursor-pointer mb-3.5">
-          Apply now
-        </button>
+<Button variant="base" size="xl">Apply Now</Button>
     </div>
   )
 }
