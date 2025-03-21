@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         base: " bg-theme rounded-sm text-white text-sm  hover:bg-theme-hover",
-        rounded: "bg-theme text-white rounded-4xlcd hover:bg-theme-hover",
+        rounded: "bg-theme text-white rounded-4xl hover:bg-theme-hover",
         default:
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         destructive:

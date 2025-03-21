@@ -5,10 +5,8 @@ import * as z from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -16,20 +14,22 @@ import { Button } from "@/components/ui/button";
 
 // 1. Define validation schema
 const formSchema = z.object({
- firstname: z.string().min(2, "Enter your First Name"), 
+    firstname: z.string().min(2, "Enter your First Name"), 
     lastname: z.string().min(2, "Enter your Last Name"),
-  email: z.string().email("Invalid email address"),
-});
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+  });
 
 
 
-function RecruiterSignIn() {
+function RecruiterSignUp() {
    // 2. Initialize form
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstname: "",
       lastname: "",
+      password: "",
       email: "",
     },
   });
@@ -58,7 +58,7 @@ function RecruiterSignIn() {
             )}
           />
 
-<FormField
+            <FormField
             control={form.control}
             name="lastname"
             render={({ field }) => (
@@ -87,45 +87,23 @@ function RecruiterSignIn() {
             )}
           />
 
-          {/* Birthdate Field */}
-          {/* <FormField
-            control={form.control}
-            name="birthdate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Birthdate</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-
-          {/* Newsletter Checkbox Field (Optional) */}
-          {/* <FormField
-            control={form.control}
-            name="newsletter"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <input
-                    type="checkbox"
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    Subscribe to our newsletter
-                  </FormLabel>
-                </div>
-              </FormItem>
-            )}
-          /> */}
+{/* Password Field */}
+<FormField
+  control={form.control}
+  name="password"
+  render={({ field }) => (
+    <FormItem>
+      <FormControl>
+        <Input type="password" placeholder="Password" {...field} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+  
           <div className=" items-center flex justify-center">
 
-          <Button type="submit" variant="rounded" className=' px-8'>Login </Button>
+          <Button type="submit" variant="rounded" className=' px-8'> Register </Button>
           </div>
         </form>
       </Form>
@@ -133,4 +111,4 @@ function RecruiterSignIn() {
   )
 }
 
-export default RecruiterSignIn
+export default RecruiterSignUp

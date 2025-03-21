@@ -9,6 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RecruiterSignIn from "./SignIn/RecruiterSignIn";
+import RecruiterSignUp from "./SignUp/RecruiterSignUp";
+import JobSeekerSignUp from "./SignUp/JobSeekerSIgnUp";
+import JobSeekerSignIn from "./SignIn/JobSeekerSignIn";
 
 function Navbar() {
   // const navigate = useNavigate()
@@ -27,29 +31,51 @@ function Navbar() {
         <div>
           <Dialog>
             <DialogTrigger>
-              <button className="hover:underline">Login</button>
+              <span className="hover:underline">Login</span>
             </DialogTrigger>
             <DialogContent>
               <DialogDescription>
-                <Tabs defaultValue="account" className="w-[400px]">
-                  <TabsList>
-                    <TabsTrigger value="account">Recruiter</TabsTrigger>
-                    <TabsTrigger value="password">Job Seeker</TabsTrigger>
+                <Tabs defaultValue="recruiter-signin" className="w-[400px]">
+                  <TabsList  >
+                    <TabsTrigger value="recruiter-signin">Recruiter</TabsTrigger>
+                    <TabsTrigger value="jobseeker-signin">Job Seeker</TabsTrigger>
                   </TabsList>
-                  <TabsContent value="account">
-                    Make changes to your account here.
+                  <TabsContent value="recruiter-signin">
+                   <RecruiterSignIn/>
                   </TabsContent>
-                  <TabsContent value="password">
-                    Change your password here.
+                  <TabsContent value="jobseeker-signin">
+                    <JobSeekerSignIn/>
                   </TabsContent>
                 </Tabs>
               </DialogDescription>
             </DialogContent>
           </Dialog>
         </div>
-        <Button variant="rounded" className=" px-7 py-2 text-base">
-          Register
-        </Button>
+
+        <div>
+        <Dialog>
+            <DialogTrigger>
+            <span variant="rounded" className=" bg-theme text-white rounded-4xl hover:bg-theme-hover px-7 py-2 text-base"> Register </span>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogDescription>
+                <Tabs defaultValue="recruiter-signup" className="w-[400px]">
+                  <TabsList>
+                    <TabsTrigger value="recruiter-signup">Recruiter</TabsTrigger>
+                    <TabsTrigger value="jobseeker-signup">Job Seeker</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="recruiter-signup">
+                   <RecruiterSignUp/>
+                  </TabsContent>
+                  <TabsContent value="jobseeker-signup">
+                    <JobSeekerSignUp/>
+                  </TabsContent>
+                </Tabs>
+              </DialogDescription>
+            </DialogContent>
+          </Dialog>
+      
+        </div>
       </div>
     </div>
   );
