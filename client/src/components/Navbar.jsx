@@ -20,9 +20,9 @@ function Navbar() {
     <div className=" flex items-center justify-between py-6 ">
       <div className="Logo flex items-center">
         <div>
-          <img src={Assets.logo} alt="JobNest Logo" className=" md:w-16" />
+          <img src={Assets.logo} alt="JobNest Logo" className="w-16" />
         </div>
-        <a href="" className=" text-2xl font-bold">
+        <a href="" className=" text-2xl font-bold hidden sm:block">
           JobNest
         </a>
       </div>

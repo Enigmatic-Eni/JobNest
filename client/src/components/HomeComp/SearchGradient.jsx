@@ -28,12 +28,12 @@ function SearchGradient() {
             </div>
         </div>
 
-        <div className="trusted-by flex items-center mt-11 py-7 shadow-sm border-[#bdbaba] gap-9 pl-2 md:pl-8">
-          <p className=' text-text'>Trusted by</p>
-          <img src={Assets.microsoftLogo} alt="Microsoft Logo" />
-          <img src={Assets.walmartLogo} alt="Walmart Logo" />
-          <img src={Assets.accentureLogo} alt="Accenture Logo" className='w-[87px] h-[29px]' />
-        </div>
+        <div className="trusted-by flex items-center mt-11 py-7 shadow-sm border-[#bdbaba] gap-9 pl-2 md:pl-8 flex-wrap">
+      <p className='text-text'>Trusted by</p>
+      <img src={Assets.microsoftLogo} alt="Microsoft Logo" />
+      <img src={Assets.walmartLogo} alt="Walmart Logo" />
+      <img src={Assets.accentureLogo} alt="Accenture Logo" className='w-[87px] h-[29px]' />
+    </div>
     </div>
   )
 }
