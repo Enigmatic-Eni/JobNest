@@ -9,8 +9,8 @@ const Home = () => {
     <div className='mx-5 md:mx-16'>
       <Navbar/>
       <SearchGradient/>
-      <div className=" mt-16 flex space-x-28">
-        <CurrentSearch/>
+      <div className=" mt-16 flex ">
+        {/* <CurrentSearch/> */}
         <LatestJobs/>
       </div>
     </div>

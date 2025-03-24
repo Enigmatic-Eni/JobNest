@@ -35,7 +35,7 @@ function Navbar() {
             </DialogTrigger>
             <DialogContent>
               <DialogDescription>
-                <Tabs defaultValue="recruiter-signin" className="w-[400px]">
+                <Tabs defaultValue="recruiter-signin" className=" 300px md:w-[400px]">
                   <TabsList  >
                     <TabsTrigger value="recruiter-signin">Recruiter</TabsTrigger>
                     <TabsTrigger value="jobseeker-signin">Job Seeker</TabsTrigger>
@@ -59,7 +59,7 @@ function Navbar() {
             </DialogTrigger>
             <DialogContent>
               <DialogDescription>
-                <Tabs defaultValue="recruiter-signup" className="w-[400px]">
+                <Tabs defaultValue="recruiter-signup" className="300px md:w-[400px]">
                   <TabsList>
                     <TabsTrigger value="recruiter-signup">Recruiter</TabsTrigger>
                     <TabsTrigger value="jobseeker-signup">Job Seeker</TabsTrigger>
