@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import JobDetails from '../components/JobDesc-Comp/JobDetails'
 import KeyResp from '../components/JobDesc-Comp/KeyResp'
 import MoreJobs from '../components/JobDesc-Comp/MoreJobs'
+import Footer from '@/components/Footer'
 
 function JobDescription() {
   return (
@@ -19,6 +20,7 @@ function JobDescription() {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   )
 }

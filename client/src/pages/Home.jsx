@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import SearchGradient from '../components/HomeComp/SearchGradient'
 import CurrentSearch from '../components/HomeComp/CurrentSearch'
 import LatestJobs from '../components/HomeComp/LatestJobs'
+import Footer from '@/components/Footer'
 
 const Home = () => {
   return (
@@ -13,6 +14,7 @@ const Home = () => {
         {/* <CurrentSearch/> */}
         <LatestJobs/>
       </div>
+      <Footer/>
     </div>
   )
 }
