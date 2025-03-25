@@ -11,8 +11,12 @@ function JobDescription() {
       <div>
         <JobDetails/>
         <div className=' flex justify-between mt-8'>
+          <div >
           <KeyResp/>
+          </div>
+          <div className=' hidden lg:block'>
           <MoreJobs/>
+          </div>
         </div>
       </div>
     </div>
