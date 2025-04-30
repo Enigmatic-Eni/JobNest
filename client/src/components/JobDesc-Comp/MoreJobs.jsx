@@ -33,7 +33,7 @@ function MoreJobs() {
     ]
   return (
     <div>
-        <p>More Jobs from Slack</p>
+        <p className=" pb-4">More Jobs from Slack</p>
         <div className=' '>
         {listing.map((list) => (
           <div className=" py-6 shadow-sm border-[#bdbaba] rounded-lg max-w-[305px] h-[325px] px-6 mb-5">
