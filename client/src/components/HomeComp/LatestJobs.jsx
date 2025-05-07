@@ -119,7 +119,7 @@ function LatestJobs() {
       <p className=" text-text">Get your desired job from top companies</p>
       <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 mt-16">
         {listing.map((list) => (
-          <div className=" py-6 shadow-sm border-[#bdbaba] rounded-lg max-w-[315px] h-[325px] px-6">
+          <div key={list.id} className=" py-6 shadow-sm border-[#bdbaba] rounded-lg max-w-[315px] h-[325px] px-6">
             <img
               src={list.icon}
               alt="company logo"

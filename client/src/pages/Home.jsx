@@ -1,22 +1,90 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import SearchGradient from '../components/HomeComp/SearchGradient'
-import CurrentSearch from '../components/HomeComp/CurrentSearch'
-import LatestJobs from '../components/HomeComp/LatestJobs'
-import Footer from '@/components/Footer'
+import React from 'react';
+import SearchGradient from '../components/HomeComp/SearchGradient';
+import LatestJobs from '../components/HomeComp/LatestJobs';
+import Footer from '@/components/Footer';
+import { Assets } from "../assets/Assets";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RecruiterSignIn from "@/components/SignIn/RecruiterSignIn";
+import RecruiterSignUp from "@/components/SignUp/RecruiterSignUp";
+import JobSeekerSignUp from "@/components/SignUp/JobSeekerSIgnUp";
+import JobSeekerSignIn from "@/components/SignIn/JobSeekerSignIn";
 
 const Home = () => {
   return (
     <div className='mx-5 md:mx-16'>
-      <Navbar/>
-      <SearchGradient/>
-      <div className=" mt-16 flex ">
-        {/* <CurrentSearch/> */}
-        <LatestJobs/>
-      </div>
-      <Footer/>
-    </div>
-  )
-}
+      <div className="flex items-center justify-between py-6">
+        <div className="Logo flex items-center">
+          <img src={Assets.logo} alt="JobNest Logo" className="w-16" />
+          <a href="#" className="text-2xl font-bold hidden sm:block">JobNest</a>
+        </div>
 
-export default Home
+        <div className="login-button flex items-center space-x-3">
+          <Dialog>
+            <DialogTrigger>
+              <span className="hover:underline">Login</span>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle className=""></DialogTitle>
+              <DialogDescription className="" >
+               
+              </DialogDescription>
+              <Tabs defaultValue="recruiter-signin" className="w-[300px] md:w-[400px]">
+                <TabsList>
+                  <TabsTrigger value="recruiter-signin">Recruiter</TabsTrigger>
+                  <TabsTrigger value="jobseeker-signin">Job Seeker</TabsTrigger>
+                </TabsList>
+                <TabsContent value="recruiter-signin">
+                  <RecruiterSignIn />
+                </TabsContent>
+                <TabsContent value="jobseeker-signin">
+                  <JobSeekerSignIn />
+                </TabsContent>
+              </Tabs>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog>
+            <DialogTrigger>
+              <span className="bg-theme text-white rounded-4xl hover:bg-theme-hover px-7 py-2 text-base">
+                Register
+              </span>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle className=""></DialogTitle>
+              <DialogDescription className="">
+           
+              </DialogDescription>
+              <Tabs defaultValue="recruiter-signup" className="w-[300px] md:w-[400px]">
+                <TabsList>
+                  <TabsTrigger value="recruiter-signup">Recruiter</TabsTrigger>
+                  <TabsTrigger value="jobseeker-signup">Job Seeker</TabsTrigger>
+                </TabsList>
+                <TabsContent value="recruiter-signup">
+                  <RecruiterSignUp />
+                </TabsContent>
+                <TabsContent value="jobseeker-signup">
+                  <JobSeekerSignUp />
+                </TabsContent>
+              </Tabs>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <SearchGradient />
+      <div className="mt-16">
+        <LatestJobs />
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default Home;
