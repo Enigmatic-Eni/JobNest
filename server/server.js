@@ -1,40 +1,33 @@
-require('dotenv').config();
-const express = require('express');
+require("dotenv").config();
+
+const express = require("express");
+const connectToDB = require("./database/db");
+const authRoutes = require("./routes/auth-routes");
 const cors = require('cors');
-const connectToDB = require('./database/db');
-const authRoute = require('./routes/authRoute');
 
 const app = express();
-app.use(express.json())
-app.use(cors())
-app.use('/auth', authRoute)
+
+app.use(cors({ 
+    origin: 'http://localhost:5173', 
+    credentials: true
+ }))
+
+const PORT = process.env.PORT || 4000;
+
 
 connectToDB();
 
-const PORT = process.env.PORT || 3000;
+// Middleware
+app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Server is now running on port ${PORT}`);
+// Routes
+app.use("/auth", authRoutes);
+
+app.get("/test-cors", (req, res) => {
+  res.json({ message: "CORS is working!" });
 });
 
 
-
-// const app = express();
-// const PORT = process.env.PORT || 3000;
-
-// app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
-// app.use(express.json());
-
-// // CORS test route
-// app.get('/test-cors', (req, res) => {
-//   res.json({ message: 'CORS is working!' });
-// });
-
-// app.use('/auth', authRoute);
-
-// // connect to DB (AFTER route definitions to avoid issues on DB fail)
-// connectToDB();
-
-// app.listen(PORT, () => {
-//   console.log(`Server is now running on port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Server is now running on PORT ${PORT}`);
+});
