@@ -23,7 +23,7 @@ app.use(express.json());
 // Routes
 app.use("/auth", authRoutes);
 
-app.get("/test-cors", (req, res) => {
+app.get("/tesst-cors", (req, res) => {
   res.json({ message: "CORS is working!" });
 });
 
