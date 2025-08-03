@@ -111,7 +111,7 @@ function RecruiterSignUp() {
   )}
 />
   
-          <div className=" items-center flex justify-center">
+          <div className="  flex justify-center">
 
           <Button type="submit" variant="rounded" className=' px-8'> Register </Button>
           </div>
