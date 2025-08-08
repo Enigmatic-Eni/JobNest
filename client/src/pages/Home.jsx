@@ -15,10 +15,15 @@ import RecruiterSignIn from "@/components/SignIn/RecruiterSignIn";
 import RecruiterSignUp from "@/components/SignUp/RecruiterSignUp";
 import JobSeekerSignUp from "@/components/SignUp/JobSeekerSIgnUp";
 import JobSeekerSignIn from "@/components/SignIn/JobSeekerSignIn";
+import Navbar from '@/components/Navbar';
 
 const Home = () => {
   return (
+
+  
     <div className='mx-5 md:mx-16'>
+
+   
       <div className="flex items-center justify-between py-6">
         <div className="Logo flex items-center">
           <img src={Assets.logo} alt="JobNest Logo" className="w-16" />
@@ -59,20 +64,11 @@ const Home = () => {
             <DialogContent>
               <DialogTitle className=""></DialogTitle>
               <DialogDescription className="">
-           
+        
               </DialogDescription>
-              <Tabs defaultValue="recruiter-signup" className="w-[300px] md:w-[400px]">
-                <TabsList>
-                  <TabsTrigger value="recruiter-signup">Recruiter</TabsTrigger>
-                  <TabsTrigger value="jobseeker-signup">Job Seeker</TabsTrigger>
-                </TabsList>
-                <TabsContent value="recruiter-signup">
-                  <RecruiterSignUp />
-                </TabsContent>
-                <TabsContent value="jobseeker-signup">
-                  <JobSeekerSignUp />
-                </TabsContent>
-              </Tabs>
+             
+
+              <RecruiterSignUp/>
             </DialogContent>
           </Dialog>
         </div>
