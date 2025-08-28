@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RecruiterSignIn from "@/components/SignIn/RecruiterSignIn";
-import RecruiterSignUp from "@/components/SignUp/RecruiterSignUp";
 import JobSeekerSignUp from "@/components/SignUp/JobSeekerSIgnUp";
 import JobSeekerSignIn from "@/components/SignIn/JobSeekerSignIn";
+import SIgnUp from '@/components/SignUp/SignUp';
 import Navbar from '@/components/Navbar';
 
 const Home = () => {
@@ -46,7 +46,7 @@ const Home = () => {
                   <TabsTrigger value="jobseeker-signin">Job Seeker</TabsTrigger>
                 </TabsList>
                 <TabsContent value="recruiter-signin">
-                  <RecruiterSignIn />
+                  <SIgnUp />
                 </TabsContent>
                 <TabsContent value="jobseeker-signin">
                   <JobSeekerSignIn />
@@ -68,7 +68,7 @@ const Home = () => {
               </DialogDescription>
              
 
-              <RecruiterSignUp/>
+              <SIgnUp/>
             </DialogContent>
           </Dialog>
         </div>

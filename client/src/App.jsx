@@ -12,7 +12,7 @@ function App() {
 
   return (
     < div className=' font-montserrat'>
-   <Routes>
+ <Routes>
     <Route path='/' element={<Home/>}/>
     <Route path = 'jobdescription' element={<JobDescription/>}/>
     <Route path = 'profile' element={<Profile/>}/>
