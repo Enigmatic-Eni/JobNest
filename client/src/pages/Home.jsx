@@ -11,11 +11,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import RecruiterSignIn from "@/components/SignIn/RecruiterSignIn";
-import JobSeekerSignUp from "@/components/SignUp/JobSeekerSIgnUp";
+
 import JobSeekerSignIn from "@/components/SignIn/JobSeekerSignIn";
-import SIgnUp from '@/components/SignUp/SignUp';
-import Navbar from '@/components/Navbar';
+import SignUp from '@/components/SignUp';
 
 const Home = () => {
   return (
@@ -46,7 +44,7 @@ const Home = () => {
                   <TabsTrigger value="jobseeker-signin">Job Seeker</TabsTrigger>
                 </TabsList>
                 <TabsContent value="recruiter-signin">
-                  <SIgnUp />
+                  <SignUp/>
                 </TabsContent>
                 <TabsContent value="jobseeker-signin">
                   <JobSeekerSignIn />
@@ -68,7 +66,7 @@ const Home = () => {
               </DialogDescription>
              
 
-              <SIgnUp/>
+              <SignUp/>
             </DialogContent>
           </Dialog>
         </div>
