@@ -55,7 +55,8 @@ export default function SignUp() {
 
   const handleSubmit = async () => {
 try {
-      const response = await axios.post('http://localhost:3000/auth/register', formData);
+      const API_URL = import.meta.env.VITE_API_URL;
+const response = await axios.post(`${API_URL}/auth/register`, formData);
       console.log("Success:", response.data);
       setSuccess(true); // Set success state
     } catch (error) {
