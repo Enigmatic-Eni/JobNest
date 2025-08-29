@@ -20,7 +20,7 @@ const authMiddleware = (req, res, next) =>{
 
         next();
         
-    } catch (e) {
+    } catch (error) {
          let message = "Access denied, please log in to continue";
         
         if (error.name === 'TokenExpiredError') {
