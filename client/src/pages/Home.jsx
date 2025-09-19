@@ -10,10 +10,8 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import JobSeekerSignIn from "@/components/SignIn/JobSeekerSignIn";
 import SignUp from '@/components/SignUp';
+import SignIn from '@/components/SIgnIn';
 
 const Home = () => {
   return (
@@ -34,22 +32,9 @@ const Home = () => {
               <span className="hover:underline">Login</span>
             </DialogTrigger>
             <DialogContent>
-              <DialogTitle className=""></DialogTitle>
-              <DialogDescription className="" >
-               
-              </DialogDescription>
-              <Tabs defaultValue="recruiter-signin" className="w-[300px] md:w-[400px]">
-                <TabsList>
-                  <TabsTrigger value="recruiter-signin">Recruiter</TabsTrigger>
-                  <TabsTrigger value="jobseeker-signin">Job Seeker</TabsTrigger>
-                </TabsList>
-                <TabsContent value="recruiter-signin">
-                  <SignUp/>
-                </TabsContent>
-                <TabsContent value="jobseeker-signin">
-                  <JobSeekerSignIn />
-                </TabsContent>
-              </Tabs>
+              <DialogTitle></DialogTitle>
+              <DialogDescription></DialogDescription>
+              <SignIn/>
             </DialogContent>
           </Dialog>
 
@@ -60,12 +45,8 @@ const Home = () => {
               </span>
             </DialogTrigger>
             <DialogContent>
-              <DialogTitle className=""></DialogTitle>
-              <DialogDescription className="">
-        
-              </DialogDescription>
-             
-
+              <DialogTitle></DialogTitle>
+              <DialogDescription></DialogDescription>
               <SignUp/>
             </DialogContent>
           </Dialog>
