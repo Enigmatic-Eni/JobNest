@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import SignUp from '@/components/SignUp';
-import SignIn from '@/components/SIgnIn';
+import SignIn from '@/components/SignIn';
 
 const Home = () => {
   return (
