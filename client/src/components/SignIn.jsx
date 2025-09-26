@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
   const [accountType, setAccountType] = useState("");
@@ -7,6 +8,8 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("")
+
+  const navigate = useNavigate();
 
   const handleNext = () => {
     if (accountType) {
@@ -43,6 +46,14 @@ export default function SignIn() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       console.log("Success", data.user)
+
+      if(accountType === "jobseeker"){
+        navigate("/profile")
+      }else if(accountType === "recruiter"){
+        navigate("/dashboard")
+      }else{
+        navigate("/")
+      }
     }catch(err){
       console.error("Login error:", err);
       setError("Server error. Please try again.")
