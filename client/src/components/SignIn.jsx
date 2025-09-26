@@ -18,13 +18,34 @@ export default function SignIn() {
     setStep(1);
   };
 
-  const handleLogin = () => {
-    setError("")
+  const handleLogin = async () => {
+    setError("");
     if(!email || !password){
       setError("Please enter all required fields")
+      return;
     }
-    if (email && password) {
-      console.log("Login attempt");
+    try{
+      const API_URL = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({email, password, accountType}),
+      });
+      const data = await res.json();
+
+      if(!res.ok){
+        setError(data.message || "Something went wrong");
+        return;
+      }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      console.log("Success", data.user)
+    }catch(err){
+      console.error("Login error:", err);
+      setError("Server error. Please try again.")
     }
   };
   return (
