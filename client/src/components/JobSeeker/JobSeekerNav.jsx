@@ -23,6 +23,7 @@ export default function JobSeekerNav() {
     
     
             <div className=' flex items-center gap-5'>
+               <a href="" className='hover:cursor-pointer hover:text-theme'>Home</a> |
               <a href="" className='hover:cursor-pointer hover:text-theme'>Applied Jobs</a>
 
               |
