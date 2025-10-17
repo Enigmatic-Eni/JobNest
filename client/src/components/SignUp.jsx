@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export default function SignUp() {
+export default function SignUp({openLoginDialog}) {
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,8 @@ export default function SignUp() {
     companyWebsite: "",
     industry: "",
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +68,42 @@ export default function SignUp() {
       );
     }
   };
+
+  const handleLogin = () =>{
+    openLoginDialog();
+  }
+
+  if (success) {
+    return (
+      <div className="font-montserrat">
+        <div className="max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-theme to-[#130121] p-6 text-white">
+            <h2 className="text-2xl font-bold text-center">Create Account</h2>
+          </div>
+
+          {/* Success Content */}
+          <div className="p-8">
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">✅</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                Registration Successful!
+              </h3>
+              <p className="text-gray-600 mb-8">
+                Your account has been created successfully.
+              </p>
+              
+              <button onClick={handleLogin}
+                className="w-full px-6 py-3 bg-gradient-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
+              >
+                Proceed to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className=" font-montserrat">
