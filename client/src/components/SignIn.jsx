@@ -62,7 +62,7 @@ export default function SignIn() {
   return (
     <div className=" font-montserrat">
       <div className=" max-w-md bg-white rounded-2xl overflow-hidden">
-        <div className=" bg-gradient-to-r mb-4 from-theme to-[#130121] text-white p-6">
+        <div className=" bg-linear-to-r mb-4 from-theme to-[#130121] text-white p-6">
           <p className=" text-2xl font-bold text-center">Contine as</p>
         </div>
         <div className=" px-8 py-8">
@@ -101,7 +101,7 @@ export default function SignIn() {
               <button
                 onClick={handleNext}
                 disabled={!accountType}
-                className="px-6 py-3 bg-gradient-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto"
+                className="px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto"
               >
                 Next
               </button>
@@ -164,7 +164,7 @@ export default function SignIn() {
                 </button>
                 <button
                   onClick={handleLogin}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
+                  className="flex-1 px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
                 >
                   Login
                 </button>

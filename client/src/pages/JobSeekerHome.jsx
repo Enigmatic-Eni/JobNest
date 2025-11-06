@@ -2,11 +2,13 @@ import React, { useState, useRef } from "react";
 import { Assets } from "@/assets/Assets";
 import { Search, Bookmark } from "lucide-react";
 import {motion } from "framer-motion";
-
+import { useNavigate } from "react-router-dom";
 
 export default function JobSeekerHome() {
   const [dropdown, setDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+const navigate = useNavigate()
 
   const toggleDropdown = (e)=>{
     e.preventDefault();
@@ -120,7 +122,7 @@ export default function JobSeekerHome() {
                     }`}
                   >
                     <ul className=" py-2 text-sm text-gray-700">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={()=>navigate('/profile')}>
                         Profile
                       </li>
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
