@@ -48,7 +48,7 @@ export default function SignIn() {
       console.log("Success", data.user)
 
       if(accountType === "jobseeker"){
-        navigate("/profile")
+        navigate("/home")
       }else if(accountType === "recruiter"){
         navigate("/dashboard")
       }else{
