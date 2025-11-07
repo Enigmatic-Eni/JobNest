@@ -1,9 +1,10 @@
 require("dotenv").config();
-
 const express = require("express");
 const connectToDB = require("./database/db");
 const authRoute = require("./routes/auth-routes")
 const cors = require('cors');
+const path = require('path')
+const profileRoute = require('./routes/profile-route')
 
 const app = express();
 
@@ -24,14 +25,14 @@ connectToDB();
 // Middleware
 app.use(express.json());
 
-
+app.use('/uploads', express.static(path.join(__dirname, "uploads")))
 
 app.get("/test-cors", (req, res) => {
   res.json({ message: "CORS is working! Lmao" });
 });
 
 app.use('/auth', authRoute )
-
+app.use('/profile', profileRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is now running on PORT ${PORT}`);

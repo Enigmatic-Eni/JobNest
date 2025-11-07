@@ -53,6 +53,24 @@ const UserSchema = new mongoose.Schema({
         required: function(){
             return this.accountType === "recruiter";
         }
+    },
+    bio:{
+        type: String,
+        trim: true
+    },
+    phone:{
+        type: String,
+        trim: true
+    },
+    linkedin: {
+        type: String,
+        trim: true
+    },
+    cv: {
+        type: String
+    },
+    coverLetter: {
+        type: String
     }
 }, {timestamps: true});
 

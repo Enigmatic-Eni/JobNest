@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Assets } from "@/assets/Assets";
 import { Search, Bookmark } from "lucide-react";
 import {motion } from "framer-motion";
@@ -7,8 +7,17 @@ import { useNavigate } from "react-router-dom";
 export default function JobSeekerHome() {
   const [dropdown, setDropdown] = useState(false);
   const dropdownRef = useRef(null);
-
+const [user, setUser] = useState(null);
 const navigate = useNavigate()
+
+useEffect(()=>{
+  const storedUser = localStorage.getItem("user");
+  if(storedUser){
+    setUser(JSON.parse(storedUser));
+  }else{
+    navigate("/");
+  }
+}, [navigate])
 
   const toggleDropdown = (e)=>{
     e.preventDefault();
@@ -100,7 +109,7 @@ const navigate = useNavigate()
               <img src={Assets.logo} alt="JobNest Logo" className="w-16" />
             </div>
             <a href="" className=" text-2xl font-bold hidden sm:block">
-              JobNest
+              Talength
             </a>
           </div>
 
@@ -151,7 +160,7 @@ const navigate = useNavigate()
             className="space-y-2"
           >
             <h1 className="text-3xl md:text-4xl font-bold flex items-center gap-2">
-              Hey Oluwaseun
+              Hey {user?.fullName?.split(" ")[0] || "there"}
             </h1>
             <p className="text-gray-400 text-lg">
               Here are the best jobs we found for you today.
@@ -209,7 +218,10 @@ const navigate = useNavigate()
                   <h3 className="font-semibold text-lg">FullStack Developer</h3>
                   <Bookmark className="text-gray-400 hover:text-theme cursor-pointer" />
                 </div>
+                <div className="flex  items-center gap-3">
+                  <img src={Assets.slackLogo} height={30} width={30} className="" alt="" />
                 <p className="text-sm text-gray-500 mb-3">Accenture • Lagos</p>
+                </div>
                 <p className="text-gray-600 text-sm mb-5 line-clamp-3">
                   Join our development team and help build scalable solutions
                   for enterprise clients.
