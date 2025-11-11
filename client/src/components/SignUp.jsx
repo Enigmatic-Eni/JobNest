@@ -78,7 +78,7 @@ export default function SignUp({openLoginDialog}) {
       <div className="font-montserrat">
         <div className="max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-theme to-[#130121] p-6 text-white">
+          <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
             <h2 className="text-2xl font-bold text-center">Create Account</h2>
           </div>
 
@@ -94,7 +94,7 @@ export default function SignUp({openLoginDialog}) {
               </p>
               
               <button onClick={handleLogin}
-                className="w-full px-6 py-3 bg-gradient-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
+                className="w-full px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
               >
                 Proceed to Login
               </button>
@@ -109,7 +109,7 @@ export default function SignUp({openLoginDialog}) {
     <div className=" font-montserrat">
       <div className="max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-theme to-[#130121] p-6 text-white">
+        <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
           <h2 className="text-2xl font-bold text-center">Create Account</h2>
           <div className="flex justify-center mt-4">
             {[1, 2, 3].map((num) => (
@@ -370,7 +370,7 @@ export default function SignUp({openLoginDialog}) {
                 type="button"
                 onClick={nextStep}
                 disabled={step === 1 && !accountType}
-                className="px-6 py-3 bg-gradient-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto"
+                className="px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto"
               >
                 Next →
               </button>
@@ -381,7 +381,7 @@ export default function SignUp({openLoginDialog}) {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto flex items-center"
+                className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto flex items-center"
               >
                 {loading ? (
                   <>

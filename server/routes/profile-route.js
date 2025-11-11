@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
+const authMiddleware = require("../middleware/authmiddleware")
 
 const {
   getUserProfile,
@@ -22,12 +23,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // GET /profile/:id
-router.get('/:id', getUserProfile);
+router.get('/:id',authMiddleware,  getUserProfile);
 
 // PUT /profile/:id
-router.put('/:id', updateUserProfile);
+router.put('/:id',authMiddleware, updateUserProfile);
 
 // POST /profile/upload/:id  -> fields: cv, coverLetter
-router.post('/upload/:id', upload.fields([{ name: 'cv', maxCount: 1 }, { name: 'coverLetter', maxCount: 1 }]), uploadDocuments);
+router.post('/upload/:id', authMiddleware, upload.fields([{ name: 'cv', maxCount: 1 }, { name: 'coverLetter', maxCount: 1 }]), uploadDocuments);
 
 module.exports = router;

@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+
+
 const authMiddleware = (req, res, next) =>{
     const authHeader = req.headers['authorization'];
 
@@ -14,8 +16,8 @@ const authMiddleware = (req, res, next) =>{
 
     try {
 
-        const decodedTokenInfo = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
+       
+ const decodedTokenInfo = jwt.verify(token, process.env.JWT_SECRET_KEY);
         req.userInfo = decodedTokenInfo;
 
         next();
@@ -35,5 +37,6 @@ const authMiddleware = (req, res, next) =>{
         });
     }
 }
+
 
 module.exports = authMiddleware;
