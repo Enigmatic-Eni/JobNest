@@ -1,145 +1,167 @@
-import Navbar from '@/components/Navbar'
-import React from 'react'
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import Footer from '@/components/Footer';
+import React, { useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
+import { PenLine } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import API from "@/lib/api";
+import { motion } from "framer-motion";
 
-function Profile() {
- 
-  return (
-    <div className=' relative px-8'>
-        <div className=' shadow-md px-8 fixed top-0 left-0 right-0 z-50 bg-white'>
-            <Navbar/>
-        </div>
+export default function Profile() {
 
-        <div className='h-[120px]'></div>
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
 
-        <h2 className="max-w-3xl mx-auto text-2xl font-semibold bg-theme text-white text-center py-5 rounded-t-xl">Create Your Profile</h2>
-        <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-b-xl">
+useEffect(()=>{
+  const fetchProfile = async () =>{
+    try {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
 
-      <form className="space-y-6">
-        {/* Profile Photo */}
-        <div>
-          <Label htmlFor="photo">Profile Photo (optional)</Label>
-          <Input type="file" id="photo" />
-        </div>
+      if(!token || !storedUser){
+        navigate("/login");
+return;
+      }
+      const user = JSON.parse(storedUser);
+      const userId = user._id;
 
-        {/* Full Name */}
-        <div>
-          <Label htmlFor="name">Full Name</Label>
-          <Input type="text" id="name" placeholder="John Doe" />
-        </div>
+      const res = await API.get(`/profile/${userId}`, {
+        headers:{
+          Authorization: `Bearer ${token}`,
+        }
+      });
 
-        {/* Email */}
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input type="email" id="email" placeholder="john@example.com" />
-        </div>
+      setUser(res.data.user || res.data)
+    } catch (error) {
+      console.error("Error fetching profile, " , error);
+      setError("Failed to load profile");
+    }finally{
+      setLoading(false);
+    }
+  }
+  fetchProfile();
+}, [navigate])
 
-        {/* Phone Number */}
-        <div>
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input type="tel" id="phone" placeholder="+1234567890" />
-        </div>
-
-        {/* Location */}
-        <div>
-          <Label htmlFor="location">Location</Label>
-          <Input type="text" id="location" placeholder="Lagos, Nigeria" />
-        </div>
-
-        {/* Professional Title */}
-        <div>
-          <Label htmlFor="title">Professional Title</Label>
-          <Input type="text" id="title" placeholder="Frontend Developer" />
-        </div>
-
-        {/* Skills */}
-        <div>
-          <Label htmlFor="skills">Skills (comma-separated)</Label>
-          <Input type="text" id="skills" placeholder="HTML, CSS, React" />
-        </div>
-
-        {/* Experience Level */}
-        <div>
-          <Label htmlFor="level">Experience Level</Label>
-          <select
-            id="level"
-            className="w-full border rounded px-3 py-2 mt-1 text-sm"
-          >
-            <option value="">Select</option>
-            <option>Entry Level</option>
-            <option>Mid Level</option>
-            <option>Senior Level</option>
-          </select>
-        </div>
-
-        {/* Years of Experience */}
-        <div>
-          <Label htmlFor="years">Years of Experience</Label>
-          <Input type="number" id="years" placeholder="2" />
-        </div>
-
-        {/* Bio / Summary */}
-        <div>
-          <Label htmlFor="bio">Bio / Summary</Label>
-          <textarea
-            id="bio"
-            className="w-full border rounded px-3 py-2 mt-1 text-sm"
-            rows="4"
-            placeholder="Tell us about yourself..."
-          ></textarea>
-        </div>
-
-        {/* Portfolio Link */}
-        <div>
-          <Label htmlFor="portfolio">Portfolio Link (optional)</Label>
-          <Input
-            type="url"
-            id="portfolio"
-            placeholder="https://yourportfolio.com"
-          />
-        </div>
-
-        {/* CV Upload */}
-        <div>
-          <Label htmlFor="cv">Upload CV</Label>
-          <Input type="file" id="cv" />
-        </div>
-
-        {/* Social Links */}
-        <div>
-          <Label htmlFor="linkedin">LinkedIn</Label>
-          <Input
-            type="url"
-            id="linkedin"
-            placeholder="https://linkedin.com/in/yourprofile"
-          />
-        </div>
-        <div>
-          <Label htmlFor="github">GitHub</Label>
-          <Input
-            type="url"
-            id="github"
-            placeholder="https://github.com/yourusername"
-          />
-        </div>
-
-        {/* Submit Button */}
-        <div className=' justify-center flex'>
-          <Button type="submit" className="">
-            Save Profile
-          </Button>
-        </div>
-      </form>
-    </div>
-
-     <div className=' pt-4'>
-     <Footer/>
-     </div>
-    </div>
-  )
+const fadeUp = {
+  hidden: {opacity: 0, y: 30},
+  visible: {opacity: 1, y: 0}
 }
 
-export default Profile
+  return (
+    <motion.div 
+    className="px-5 pb-10 min-h-screen bg-linear-to-br from-white via-gray-50 to-gray-100"
+    initial={{opacity: 0}}
+    animate={{opacity: 1}}
+    transition={{duration: 0.6}}>
+      <Navbar />
+
+      <motion.div className="px-5 md:px-16 mt-6"
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      transition={{duration: 0.5}}>
+        <p className=" pb-3 text-2xl font-bold text-gray-800">My Profile</p>
+
+        <motion.div className=" mb-4 flex flex-col  md:flex-row md:justify-between border rounded-2xl p-6 shadow-md bg-white border-gray-100 items-center hover:shadow-lg transition-all"
+        variants={fadeUp}
+        transition={{delay: 0.1}}>
+          <div className="">
+            <p className=" pb-1 text-xl font-medium">Rauf Sharma</p>
+            <p className=" pb-1 text-[14px] text-gray-500">Team Manager</p>
+            <p className=" text-[12px] text-gray-400">Lagos, Nigeria</p>
+          </div>
+
+          <div className="flex gap-2 hover:cursor-pointer items-center p-2 rounded-3xl border border-gray-200 text-gray-400 text-sm">
+            <p>Edit</p>
+            <PenLine className=" w-3" />
+          </div>
+        </motion.div>
+
+        <div className=" mb-4 border rounded-lg p-5 border-gray-100 shadow-sm items-center">
+        
+            <div className=" flex items-center justify-between">
+              <div>
+                <p className=" pb-1 text-lg font-medium">
+                  Personal Information
+                </p>
+              </div>
+              <div className="flex gap-2 hover:cursor-pointer items-center p-2 rounded-3xl border border-gray-200 text-gray-400 text-sm">
+                <p>Edit</p>
+                <PenLine className=" w-3" />
+              </div>
+            </div>
+
+            <div className=" grid grid-cols-2 gap-2">
+              <div>
+                <p className=" text-[12px] text-gray-400">First Name</p>
+                <p className=" pb-1 text-[14px] ">Rauf</p>
+              </div>
+
+              <div>
+                <p className=" text-[12px] text-gray-400">Last Name</p>
+                <p className=" pb-1 text-[14px]">Sharma</p>
+              </div>
+
+                <div>
+                <p className=" text-[12px] text-gray-400">Email Address</p>
+                <p className=" pb-1 text-[14px]">rauf@gmail.com</p>
+              </div>
+
+                <div>
+                <p className=" text-[12px] text-gray-400">Phone</p>
+                <p className=" pb-1 text-[14px]">+2348146397327</p>
+              </div>
+
+                <div>
+                <p className=" text-[12px] text-gray-400">Bio</p>
+                <p className=" pb-1 text-[14px]">Team Manager</p>
+              </div>
+            </div>
+        </div>
+
+ <div className="  border rounded-lg p-5 border-gray-100 shadow-sm items-center">
+        
+            <div className=" flex items-center justify-between">
+              <div>
+                <p className=" pb-1 text-lg font-medium">
+                  Personal Information
+                </p>
+              </div>
+              <div className="flex gap-2 hover:cursor-pointer items-center p-2 rounded-3xl border border-gray-200 text-gray-400 text-sm">
+                <p>Edit</p>
+                <PenLine className=" w-3" />
+              </div>
+            </div>
+
+            <div className=" grid grid-cols-2 gap-2">
+              <div>
+                <p className=" text-[12px] text-gray-400">First Name</p>
+                <p className=" pb-1 text-[14px] ">Rauf</p>
+              </div>
+
+              <div>
+                <p className=" text-[12px] text-gray-400">Last Name</p>
+                <p className=" pb-1 text-[14px]">Sharma</p>
+              </div>
+
+                <div>
+                <p className=" text-[12px] text-gray-400">Email Address</p>
+                <p className=" pb-1 text-[14px]">rauf@gmail.com</p>
+              </div>
+
+                <div>
+                <p className=" text-[12px] text-gray-400">Phone</p>
+                <p className=" pb-1 text-[14px]">+2348146397327</p>
+              </div>
+
+                <div>
+                <p className=" text-[12px] text-gray-400">Bio</p>
+                <p className=" pb-1 text-[14px]">Team Manager</p>
+              </div>
+            </div>
+     </div>
+
+      </motion.div>
+    </motion.div>
+  );
+}

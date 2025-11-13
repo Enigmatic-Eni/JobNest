@@ -7,7 +7,7 @@ import Home from './pages/Home'
 import JobDescription from './pages/JobDescription'
 // import Profile from './pages/Profile'
 import JobSeekerHome from './pages/JobSeekerHome'
-import Profile from './components/JobSeeker/Profile'
+import Profile from './pages/Profile'
 
 function App() {
  
