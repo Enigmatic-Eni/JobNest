@@ -1,166 +1,162 @@
+
 const User = require("../models/user");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// register endpoint
+/*Generate JWT token for authenticated user*/
+const generateToken = (userId) => {
+  return jwt.sign(
+    { userId }, 
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: '7d' }
+  );
+};
+
+/* Get public-safe user profile (removes sensitive data)*/
+const getPublicProfile = (user) => {
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    phone: user.phone,
+    accountType: user.accountType,
+    profileCompleted: user.profileCompleted,
+    ...(user.accountType === 'student' && user.studentInfo && {
+      studentInfo: user.studentInfo
+    }),
+    ...(user.accountType === 'recruiter' && user.recruiterInfo && {
+      recruiterInfo: user.recruiterInfo
+    })
+  };
+};
+
+// ============================================
+// AUTH CONTROLLERS
+// ============================================
 
 const registerUser = async (req, res) => {
   try {
-    const {
-      accountType,
-      fullName,
-      email,
-      password,
-      location,
-      skills,
-      companyName,
-      companyWebsite,
-      industry,
-    } = req.body;
+    const { fullName, email, password, accountType, phone } = req.body;
 
-    // Check for existing user
+    // Validate required fields
+    if (!fullName || !email || !password || !accountType) {
+      return res.status(400).json({
+        success: false,
+        message: "Full name, email, password, and account type are required"
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long"
+      });
+    }
+
+    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User  with this email already exists",
+        message: "Email already registered"
       });
     }
 
-    // Validate required fields
-    if (!accountType || !fullName || !email || !password) {
+    // Validate account type
+    if (!['student', 'recruiter'].includes(accountType)) {
       return res.status(400).json({
         success: false,
-        message: "Please fill in all required fields",
+        message: "Invalid account type. Must be 'student' or 'recruiter'"
       });
     }
 
-    // Additional validation based on account type
-    if (accountType === "jobseeker") {
-      if (!location || !skills) {
-        return res.status(400).json({
-          success: false,
-          message: "Location and skills are required for job seekers",
-        });
-      }
-    } else if (accountType === "recruiter") {
-      if (!companyName || !companyWebsite || !industry) {
-        return res.status(400).json({
-          success: false,
-          message: "Company details are required for recruiters",
-        });
-      }
-    }
-
-    // Create user data object
-    const userData = {
+    // Create new user
+    const user = await User.create({
       fullName,
-      email,
+      email: email.toLowerCase(),
       password,
       accountType,
-      ...(accountType === "jobseeker" && { location, skills }),
-      ...(accountType === "recruiter" && {
-        companyName,
-        companyWebsite,
-        industry,
-      }),
-    };
-
-    const newUser = new User(userData);
-    await newUser.save();
-
-    return res.status(201).json({
-      success: true,
-      message: "User  registered successfully",
-      user: {
-        id: newUser._id,
-        fullName: newUser.fullName,
-        email: newUser.email,
-        accountType: newUser.accountType,
-        ...(accountType === "jobseeker" && {
-          location: newUser.location,
-          skills: newUser.skills,
-        }),
-        ...(accountType === "recruiter" && {
-          companyName: newUser.companyName,
-          companyWebsite: newUser.companyWebsite,
-          industry: newUser.industry,
-        }),
-      },
+      phone: phone || undefined,
+      profileCompleted: false
     });
+
+    // Generate JWT token
+    const token = generateToken(user._id);
+
+    // Send response
+    res.status(201).json({
+      success: true,
+      message: "Registration successful",
+      token,
+      user: getPublicProfile(user),
+      needsProfileCompletion: true
+    });
+
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({
-      message: "Registration error",
       success: false,
+      message: "Server error during registration",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
 
-// login controller
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Please provide both email and password",
+        message: "Email and password are required"
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Find user (including password field)
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: "Invalid email or password"
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: "Invalid email or password"
       });
     }
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-        accountType: user.accountType,
-      },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "2d" }
-    );
 
-    return res.status(200).json({
+    // Generate token
+    const token = generateToken(user._id);
+
+    // Send response
+    res.status(200).json({
       success: true,
-      message: "Login Successful",
+      message: "Login successful",
       token,
-      user:{
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        accountType: user.accountType,
-        ...(user.accountType === "jobseeker" &&{
-          location: user.location,
-          skills: user.skills
-        }),
-        ...(user.accountType === "recruiter" && {
-          companyName: user.companyName,
-          companyWebsite: user.companyWebsite,
-          industry: user.industry
-        })
-      }
-    })
+      user: getPublicProfile(user),
+      needsProfileCompletion: !user.profileCompleted
+    });
+
   } catch (error) {
-    console.error("Login error:" , error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: "login error"
-    })
+      message: "Server error during login",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
-module.exports = { registerUser, loginUser };
+
+module.exports = {
+  registerUser,
+  loginUser
+};

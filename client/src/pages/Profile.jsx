@@ -22,8 +22,8 @@ useEffect(()=>{
         navigate("/login");
 return;
       }
-      const user = JSON.parse(storedUser);
-      const userId = user._id;
+      const userObj = JSON.parse(storedUser);
+      const userId = userObj.id;
 
       const res = await API.get(`/profile/${userId}`, {
         headers:{
@@ -66,15 +66,15 @@ const fadeUp = {
         variants={fadeUp}
         transition={{delay: 0.1}}>
           <div className="">
-            <p className=" pb-1 text-xl font-medium">Rauf Sharma</p>
-            <p className=" pb-1 text-[14px] text-gray-500">Team Manager</p>
-            <p className=" text-[12px] text-gray-400">Lagos, Nigeria</p>
+            <p className=" pb-1 text-xl font-medium">{user?.fullName}</p>
+            <p className=" pb-1 text-[14px] text-gray-500">{user?.skills}</p>
+            <p className=" text-[12px] text-gray-400">{user?.location}</p>
           </div>
 
-          <div className="flex gap-2 hover:cursor-pointer items-center p-2 rounded-3xl border border-gray-200 text-gray-400 text-sm">
+          <motion.div className="flex gap-2 hover:cursor-pointer items-center p-2 rounded-3xl border border-gray-200 text-gray-400 text-sm">
             <p>Edit</p>
             <PenLine className=" w-3" />
-          </div>
+          </motion.div>
         </motion.div>
 
         <div className=" mb-4 border rounded-lg p-5 border-gray-100 shadow-sm items-center">
