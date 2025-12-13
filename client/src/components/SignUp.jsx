@@ -13,6 +13,7 @@ export default function SignUp({openLoginDialog}) {
     fullName: "",
     email: "",
     password: "",
+    phone: "",
     // Job seeker fields
     location: "",
     skills: "",
@@ -55,23 +56,58 @@ export default function SignUp({openLoginDialog}) {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
+    setError("");
     try {
       const API_URL = import.meta.env.VITE_API_URL;
-      const response = await axios.post(`${API_URL}/auth/register`, formData);
+
+      const dataToSend = {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        accountType: accountType,
+        phone: formData.phone || undefined,
+      };
+
+      if(accountType === "student"){
+        dataToSend.studentInfo ={
+          skills: formData.skills?formData.skills.split(',').map(skill=> skill.trim()).filter(Boolean): [],
+        }
+      }else if(accountType === "recruiter"){
+        dataToSend.recruiterInfo ={
+          companyName: formData.companyName || undefined,
+          companyWebsite: formData.companyWebsite || undefined,
+          industry: formData.industry || undefined
+        };
+      }
+      console.log("Backend Data: ", dataToSend);
+
+      const response = await axios.post(`${API_URL}/auth/register`, dataToSend);
+
       console.log("Success:", response.data);
-      setSuccess(true); // Set success state
+
+      localStorage.setItem("token", response.data.token);
+localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      setSuccess(true);
+
     } catch (error) {
-      console.error("Error:", error.response?.data || error.message);
-      setError(
-        error.response?.data?.message ||
-          "An error occurred during registration."
+      console.error("Error:", error);
+      setError( error.response?.data?.message || "An error occured during registration. Please try again."
       );
     }
   };
 
   const handleLogin = () =>{
-    openLoginDialog();
-  }
+    // openLoginDialog();
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if(user.accountType === "student"){
+      navigate("/home");
+    }else if(user.accountType === "recruiter"){
+      navigate("/recruiter-home");
+    }
+  };
 
   if (success) {
     return (
@@ -96,7 +132,7 @@ export default function SignUp({openLoginDialog}) {
               <button onClick={handleLogin}
                 className="w-full px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
               >
-                Proceed to Login
+                Proceed to Dashboard
               </button>
             </div>
           </div>
@@ -159,8 +195,8 @@ export default function SignUp({openLoginDialog}) {
               <div className="space-y-3">
                 {[
                   {
-                    value: "jobseeker",
-                    label: "Job Seeker",
+                    value: "student",
+                    label: "Student [SIWES/NYSC]",
                     icon: "👤",
                     desc: "Looking for opportunities",
                   },
@@ -264,7 +300,7 @@ export default function SignUp({openLoginDialog}) {
           )}
 
           {/* STEP 3: Role-specific fields */}
-          {step === 3 && accountType === "jobseeker" && (
+          {step === 3 && accountType === "student" && (
             <div className="space-y-5">
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -284,7 +320,7 @@ export default function SignUp({openLoginDialog}) {
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  placeholder="e.g., New York, NY"
+                  placeholder="e.g., Lagos, Abuja"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-theme focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 />
               </div>
@@ -298,7 +334,7 @@ export default function SignUp({openLoginDialog}) {
                   name="skills"
                   value={formData.skills}
                   onChange={handleInputChange}
-                  placeholder="e.g., JavaScript, React, Node.js"
+                  placeholder="e.g., Programming, Accounting, SMM"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-theme focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 />
               </div>

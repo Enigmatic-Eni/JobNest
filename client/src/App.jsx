@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
@@ -8,6 +6,7 @@ import JobDescription from './pages/JobDescription'
 // import Profile from './pages/Profile'
 import JobSeekerHome from './pages/JobSeekerHome'
 import Profile from './pages/Profile'
+import RecruiterHome from './pages/RecruiterHome'
 
 function App() {
  
@@ -18,6 +17,7 @@ function App() {
     <Route path='/' element={<Home/>}/>
     <Route path = 'jobdescription' element={<JobDescription/>}/>
     <Route path = 'home' element={<JobSeekerHome/>}/>
+     <Route path = 'recruiter-home' element={<RecruiterHome/>}/>
     <Route path = 'profile' element={<Profile/>}/>
     {/* <Route path = 'profile' element={<Profile/>}/> */}
 

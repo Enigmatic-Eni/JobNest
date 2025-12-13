@@ -8,6 +8,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate();
 
@@ -23,23 +24,28 @@ export default function SignIn() {
 
   const handleLogin = async () => {
     setError("");
+    setLoading(true);
+
     if(!email || !password){
-      setError("Please enter all required fields")
+      setError("Please enter all required fields");
+      setLoading(false);
       return;
     }
     try{
       const API_URL = import.meta.env.VITE_API_URL;
+
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({email, password, accountType}),
+        body: JSON.stringify({email, password}),
       });
       const data = await res.json();
 
       if(!res.ok){
         setError(data.message || "Something went wrong");
+        setLoading(false);
         return;
       }
       localStorage.setItem("token", data.token);
@@ -47,7 +53,7 @@ export default function SignIn() {
 
       console.log("Success", data.user)
 
-      if(accountType === "jobseeker"){
+      if(accountType === "student"){
         navigate("/home")
       }else if(accountType === "recruiter"){
         navigate("/dashboard")
@@ -57,6 +63,8 @@ export default function SignIn() {
     }catch(err){
       console.error("Login error:", err);
       setError("Server error. Please try again.")
+    }finally{
+      setLoading(false)
     }
   };
   return (
@@ -70,8 +78,8 @@ export default function SignIn() {
             <div className=" space-y-6">
               {[
                 {
-                  value: "jobseeker",
-                  label: "Job Seeker",
+                  value: "student",
+                  label: "Student",
                   icon: "👤",
                 },
                 {
