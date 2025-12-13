@@ -24,6 +24,14 @@ useEffect(()=>{
     setDropdown(!dropdown)
   }
 
+  const handleLogout = () =>{
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  navigate('/')
+}
+
+
   // const jobs = [
   //   {
   //     id: 1,
@@ -140,7 +148,7 @@ useEffect(()=>{
                       <li
                         className="
    px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      >
+                      onClick={handleLogout}>
                         Logout
                       </li>
                     </ul>

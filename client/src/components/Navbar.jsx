@@ -2,10 +2,20 @@ import React from "react";
 import { Assets } from "../assets/Assets";
 // import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 
 function Navbar() {
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
+
+  const handleLogout = () =>{
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  navigate('/')
+}
+
+
   return (
     <div className=" flex items-center justify-between py-6 ">
       <div className="Logo flex items-center">
@@ -19,7 +29,7 @@ function Navbar() {
 
 
         <div>
-        <span className="bg-theme text-white rounded-4xl hover:bg-theme-hover px-7 py-2 text-base cursor-pointer">
+        <span className="bg-theme text-white rounded-4xl hover:bg-theme-hover px-7 py-2 text-base cursor-pointer" onClick={handleLogout}>
                 Logout
               </span>
         </div>
