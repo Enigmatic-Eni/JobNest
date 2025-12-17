@@ -97,7 +97,9 @@ const registerUser = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during registration",
+      // this only shows specific error in development but shows the "Server error during registration" in production.
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      // remember to comment out this error part when trying to push to github
     });
   }
 };
