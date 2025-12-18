@@ -16,13 +16,13 @@ const studentInfoSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  fieldOfStudy: {
-    type: String,
-    trim: true
-  },
-  graduationYear: {
-    type: Number
-  },
+  // fieldOfStudy: {
+  //   type: String,
+  //   trim: true
+  // },
+  // graduationYear: {
+  //   type: Number
+  // },
   skills: {
     type: [String],
     default: [],
@@ -70,11 +70,11 @@ const studentInfoSchema = new mongoose.Schema({
       url: String,
       uploadedAt: Date
     },
-    transcript: {
-      filename: String,
-      url: String,
-      uploadedAt: Date
-    }
+    // transcript: {
+    //   filename: String,
+    //   url: String,
+    //   uploadedAt: Date
+    // }
   }
 });
 

@@ -5,6 +5,7 @@ const authRoute = require("./routes/auth-routes")
 const cors = require('cors');
 const path = require('path')
 const profileRoute = require('./routes/profile-route')
+const profileRoutes = require("./routes/profile-route");
 
 const app = express();
 
@@ -32,7 +33,9 @@ app.get("/test-cors", (req, res) => {
 });
 
 app.use('/auth', authRoute )
-app.use('/profile', profileRoute)
+app.use("/uploads", express.static("uploads"));
+app.use("/profile", profileRoutes);
+// app.use('/profile', profileRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is now running on PORT ${PORT}`);

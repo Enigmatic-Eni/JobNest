@@ -5,8 +5,8 @@ import Home from './pages/Home'
 import JobDescription from './pages/JobDescription'
 // import Profile from './pages/Profile'
 import JobSeekerHome from './pages/JobSeekerHome'
-import Profile from './pages/Profile'
 import RecruiterHome from './pages/RecruiterHome'
+import StudentProfile from './pages/StudentProfile'
 
 function App() {
  
@@ -18,7 +18,7 @@ function App() {
     <Route path = 'jobdescription' element={<JobDescription/>}/>
     <Route path = 'home' element={<JobSeekerHome/>}/>
      <Route path = 'recruiter-home' element={<RecruiterHome/>}/>
-    <Route path = 'profile' element={<Profile/>}/>
+    <Route path = 'profile' element={<StudentProfile/>}/>
     {/* <Route path = 'profile' element={<Profile/>}/> */}
 
    </Routes>
