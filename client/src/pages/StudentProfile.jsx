@@ -62,8 +62,6 @@ const fetchProfile = async () =>{
         programType: userData.studentInfo?.programType || "",
         institution: userData.studentInfo?.institution || "",
         course: userData.studentInfo?.course || "",
-        fieldOfStudy: userData.studentInfo?.fieldOfStudy || "",
-        graduationYear: userData.studentInfo?.graduationYear || "",
         skills: userData.studentInfo?.skills || [],
         statePreferences: userData.studentInfo?.statePreferences || [],
         deployedState: userData.studentInfo?.deployedState || "",
