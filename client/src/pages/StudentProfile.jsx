@@ -107,7 +107,6 @@ const handleSave = async()=>{
           programType: formData.programType,
           institution: formData.institution,
           course: formData.course,
-          fieldOfStudy: formData.fieldOfStudy,
           graduationYear: formData.graduationYear ? parseInt(formData.graduationYear) : undefined,
           skills: skillsArray,
           statePreferences: statePrefsArray,
