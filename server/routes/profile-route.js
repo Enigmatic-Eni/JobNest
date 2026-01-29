@@ -47,6 +47,7 @@ const {
 // Import middlewares
 const authMiddleware = require("../middleware/authmiddleware");
 const upload = require("../middleware/uploadmiddleware");
+const multerErrorHandler = require("../controller/middlewareErrorHandler");
 
 // protected route
 router.get("/", authMiddleware, getProfile);
@@ -54,10 +55,11 @@ router.get("/", authMiddleware, getProfile);
 router.put("/", authMiddleware, updateProfile);
 
 router.post(
-  "/upload", 
-  authMiddleware,           // Check authentication first
-  upload.single("file"),    // Handle file upload (field name must be "file")
-  uploadDocument            // Save file info to database
+  "/upload",
+  authMiddleware,
+  upload.single("document"),
+  multerErrorHandler,
+  uploadDocument
 );
 
 router.delete("/document/:documentType", authMiddleware, deleteDocument);

@@ -1,42 +1,42 @@
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../config/cloudinary");
 
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const timestamp = Date.now();
+    const safeName = file.originalname
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9]/g, "_");
 
-const multer = require("multer")
-const path = require("path")
+    return {
+      public_id: `student_${req.userInfo.userId}_${timestamp}_${safeName}`,
+      resource_type: "raw",
+      type: "upload",
+      access_mode: "public"
+    };
+  }
+});
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) =>{
-        cb(null, "uploads/documents/");
-    },
-    filename: (req, file, cb)=>{
-        const userId = req.userInfo.userId;
-        const timestamp = Date.now();
-        const extension = path.extname(file.originalname)
-        cb(null, `${userId}_${timestamp}${extension}`);
-    }
-})
-
-const fileFilter = (req, file, cb) =>{
-     const allowedTypes = [
-    "application/pdf",           
-    "image/jpeg",                
-    "image/png",                
-    "application/msword",       
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ];
 
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true); // Accept file
+  if (!allowedTypes.includes(file.mimetype)) {
+    cb(new Error("Only PDF or Word documents are allowed"), false);
   } else {
-    cb(new Error("Invalid file type. Only PDF, JPG, PNG, DOC, and DOCX are allowed"), false);
+    cb(null, true);
   }
 };
 
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max file size
-  }
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 module.exports = upload;

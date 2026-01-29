@@ -157,7 +157,7 @@ const handleFileUpload = async (e, documentType) => {
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("document", file);
       formData.append("documentType", documentType);
 
       await API.post("/profile/upload", formData, {
@@ -200,6 +200,8 @@ const handleFileUpload = async (e, documentType) => {
       setError(error.response?.data?.message || "Failed to delete document");
     }
   };
+
+// console.log("Document URL:", user?.studentInfo?.documents?.cv?.url);
 
 const fadeUp = {
   hidden: {opacity: 0, y: 30},
@@ -564,13 +566,13 @@ if (loading) {
             />
 
             {/* Transcript */}
-            <DocumentUpload
+            {/* <DocumentUpload
               label="Call Up Letter"
               documentType="callUpLetter"
               document={user?.studentInfo?.documents?.callUpLetter}
               onUpload={handleFileUpload}
               onDelete={handleDeleteDocument}
-            />
+            /> */}
           </div>
         </motion.div>
 
