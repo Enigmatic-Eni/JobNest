@@ -1,8 +1,7 @@
 const User = require("../models/user");
-const deleteFromCloudinary = require("../utils/deleteFromCloudinary");
-const cloudinary = require("../config/cloudinary");
+const supabase = require("../config/supabase");
 
-// Get Profile
+// ---------------------- GET PROFILE ----------------------
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.userInfo.userId);
@@ -21,14 +20,12 @@ const getProfile = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
-        accountType: user.accountType,
         profileCompleted: user.profileCompleted,
-        studentInfo: user.studentInfo,
-        recruiterInfo: user.recruiterInfo
+        jobSeekerInfo: user.jobSeekerInfo
       }
     });
   } catch (error) {
-    console.error("Get profile error: ", error);
+    console.error("Get profile error:", error);
     res.status(500).json({
       success: false,
       message: "Server error"
@@ -36,69 +33,48 @@ const getProfile = async (req, res) => {
   }
 };
 
-// Update Profile
+// ---------------------- UPDATE PROFILE ----------------------
 const updateProfile = async (req, res) => {
   try {
     const userId = req.userInfo.userId;
-    const { fullName, phone, studentInfo, recruiterInfo } = req.body;
+    const { fullName, phone, jobSeekerInfo } = req.body;
 
     const user = await User.findById(userId);
-
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     // Update basic fields
     if (fullName) user.fullName = fullName;
     if (phone) user.phone = phone;
 
-    if (user.accountType === "student" && studentInfo) {
-      user.studentInfo = {
-        ...user.studentInfo?.toObject(),
-        ...studentInfo
-      };
-      
-      if (studentInfo.documents) {
-        user.studentInfo.documents = {
-          ...user.studentInfo.documents?.toObject(),
-          ...studentInfo.documents
-        };
-      }
-
-      // Check if profile is complete
-      const isComplete = !!(
-        user.studentInfo.programType &&
-        user.studentInfo.institution &&
-        user.studentInfo.course &&
-        user.studentInfo.availableDuration &&
-        user.studentInfo.skills?.length >= 3 &&
-        user.studentInfo.documents?.cv?.url
-      );
-      user.profileCompleted = isComplete;
+    // Update jobSeekerInfo subfields
+    if (jobSeekerInfo) {
+      user.jobSeekerInfo.education = jobSeekerInfo.education || user.jobSeekerInfo.education;
+      user.jobSeekerInfo.experienceLevel = jobSeekerInfo.experienceLevel || user.jobSeekerInfo.experienceLevel;
+      user.jobSeekerInfo.skills = jobSeekerInfo.skills || user.jobSeekerInfo.skills;
+      user.jobSeekerInfo.preferences = jobSeekerInfo.preferences || user.jobSeekerInfo.preferences;
+      user.jobSeekerInfo.bio = jobSeekerInfo.bio || user.jobSeekerInfo.bio;
+      user.jobSeekerInfo.links = jobSeekerInfo.links || user.jobSeekerInfo.links;
     }
 
-    if (user.accountType === "recruiter" && recruiterInfo) {
-      user.recruiterInfo = {
-        ...user.recruiterInfo?.toObject(),
-        ...recruiterInfo
-      };
-      
-      if (recruiterInfo.companyLogo) {
-        user.recruiterInfo.companyLogo = recruiterInfo.companyLogo;
-      }
-      
-      const isComplete = !!(
-        user.recruiterInfo.companyName &&
-        user.recruiterInfo.industry &&
-        user.recruiterInfo.location?.state &&
-        user.recruiterInfo.location?.city &&
-        user.recruiterInfo.bio
-      );
-      user.profileCompleted = isComplete;
-    }
+    // ---------------------- CHECK IF PROFILE IS COMPLETE ----------------------
+    const isComplete = !!(
+      user.jobSeekerInfo.education?.institution &&
+      user.jobSeekerInfo.education?.course &&
+      user.jobSeekerInfo.experienceLevel &&
+      user.jobSeekerInfo.bio &&
+      user.jobSeekerInfo.skills?.length > 0 &&
+      user.jobSeekerInfo.skills.length <= 7 &&
+      user.jobSeekerInfo.links?.linkedin &&
+      user.jobSeekerInfo.links?.portfolio &&
+      user.jobSeekerInfo.preferences?.location?.length > 0 &&
+      user.jobSeekerInfo.preferences?.jobTitles?.length > 0 &&
+      typeof user.jobSeekerInfo.preferences?.remote === "boolean" &&
+      user.jobSeekerInfo.documents?.baseCv?.storagePath
+    );
+
+    user.profileCompleted = isComplete;
 
     await user.save();
 
@@ -110,14 +86,12 @@ const updateProfile = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
-        accountType: user.accountType,
         profileCompleted: user.profileCompleted,
-        studentInfo: user.studentInfo,
-        recruiterInfo: user.recruiterInfo
+        jobSeekerInfo: user.jobSeekerInfo
       }
     });
   } catch (error) {
-    console.error("Update profile error: ", error);
+    console.error("Update profile error:", error);
     res.status(500).json({
       success: false,
       message: "Server error"
@@ -125,109 +99,229 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// Upload Document
+// ---------------------- UPLOAD DOCUMENT ----------------------
 const uploadDocument = async (req, res) => {
   try {
     const userId = req.userInfo.userId;
     const { documentType } = req.body;
+    const file = req.file;
 
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded"
-      });
+    if (!file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    const validTypes = ["cv", "callUpLetter", "itLetter", "transcript"];
-    if (!validTypes.includes(documentType)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid document type"
+    const allowedTypes = ["baseCv", "coverLetter"];
+    if (!allowedTypes.includes(documentType)) {
+      return res.status(400).json({ success: false, message: "Invalid document type" });
+    }
+
+    // Allowed MIME types
+    const allowedMimeTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ];
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Unsupported file format. Please upload PDF or Word documents." 
       });
     }
 
     const user = await User.findById(userId);
-    if (!user || user.accountType !== "student") {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized"
-      });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+ if (user.jobSeekerInfo.documents?.[documentType]?.storagePath) {
+      try {
+        await supabase.storage
+          .from("Documents")
+          .remove([user.jobSeekerInfo.documents[documentType].storagePath]);
+      } catch (deleteError) {
+        console.error("Error deleting old document:", deleteError);
+        // Continue with upload even if delete fails
+      }
     }
 
-    if (!user.studentInfo) user.studentInfo = {};
-    if (!user.studentInfo.documents) user.studentInfo.documents = {};
 
-    // Delete old doc if exists
-    const existingDoc = user.studentInfo.documents[documentType];
-    if (existingDoc?.publicId) {
-      await deleteFromCloudinary(existingDoc.publicId);
+    const filePath = `users/${userId}/${documentType}-${Date.now()}-${file.originalname}`;
+
+
+   
+    // Upload to Supabase
+const uploadResult = await supabase.storage
+  .from("documents")
+  .upload(filePath, file.buffer, {
+    contentType: file.mimetype,
+    upsert: true
+  });
+
+if (uploadResult.error) {
+  console.error("UPLOAD FAILED:", uploadResult.error);
+  throw uploadResult.error;
+}
+
+if (!user.jobSeekerInfo) {
+  user.jobSeekerInfo = {};
+}
+
+    // Update user document
+    if (!user.jobSeekerInfo.documents) {
+      user.jobSeekerInfo.documents = {};
     }
 
-    const documentData = {
-      filename: req.file.originalname,
-      publicId: req.file.filename,
-      uploadedAt: new Date(),
-      mimeType: req.file.mimetype
+    user.jobSeekerInfo.documents[documentType] = {
+      filename: file.originalname,
+      url: "",
+      storagePath: filePath,
+      mimeType: file.mimetype,
+      uploadedAt: new Date()
     };
-
-    user.studentInfo.documents[documentType] = documentData;
-    user.markModified("studentInfo.documents");
 
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: "Document uploaded successfully",
-      document: documentData
+      document: user.jobSeekerInfo.documents[documentType]
     });
 
   } catch (error) {
-    console.error("Upload error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error"
+    console.error(error);
+    res.status(500).json({ success: false, message: "Upload failed" });
+  }
+};
+
+const getDocumentUrl = async (req, res) => {
+  try {
+    const userId = req.userInfo.userId;
+    const { documentType } = req.params;
+
+    if (!documentType) {
+  return res.status(400).json({
+    success: false,
+    message: "documentType is required"
+  });
+}
+
+
+    const allowedTypes = ["baseCv", "coverLetter"];
+    if (!allowedTypes.includes(documentType)) {
+      return res.status(400).json({ success: false, message: "Invalid document type" });
+    }
+
+    const user = await User.findById(userId);
+    const doc = user?.jobSeekerInfo?.documents?.[documentType];
+
+    if (!doc?.storagePath) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Document not found" 
+      });
+    }
+
+    // Generate fresh signed URL (valid for 1 hour)
+    const { data: signedUrl, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl(doc.storagePath, 60 * 60); // 1 hour
+
+    if (error) {
+      console.error("Error generating signed URL:", error);
+      return res.status(500).json({ 
+        success: false, 
+        message: "Failed to generate document URL" 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      url: signedUrl.signedUrl,
+      filename: doc.filename,
+      mimeType: doc.mimeType
+    });
+
+  } catch (error) {
+    console.error("Get document URL error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error" 
     });
   }
 };
 
-
-// Delete Document
+// ---------------------- DELETE DOCUMENT ----------------------
 const deleteDocument = async (req, res) => {
   try {
     const userId = req.userInfo.userId;
     const { documentType } = req.params;
 
+    // ADDED: Validate document type
+    const allowedTypes = ["baseCv", "coverLetter"];
+    if (!allowedTypes.includes(documentType)) {
+      return res.status(400).json({ success: false, message: "Invalid document type" });
+    }
+
     const user = await User.findById(userId);
-    if (!user?.studentInfo?.documents?.[documentType]) {
-      return res.status(404).json({
-        success: false,
-        message: "Document not found"
+    const doc = user?.jobSeekerInfo?.documents?.[documentType];
+
+    if (!doc?.storagePath) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Document not found" 
       });
     }
 
-    const publicId = user.studentInfo.documents[documentType].publicId;
-    if (publicId) {
-      await deleteFromCloudinary(publicId);
+    // Delete from Supabase
+    const { error } = await supabase.storage
+      .from("documents")
+      .remove([doc.storagePath]);
+
+    if (error) {
+      console.error("Supabase delete error:", error);
+      // Continue to update DB even if storage delete fails
     }
 
-    user.studentInfo.documents[documentType] = null;
-    user.markModified("studentInfo.documents");
+    // Update user document
+    user.jobSeekerInfo.documents[documentType] = undefined;
+    
+    // ADDED: Recalculate profile completion
+    const isComplete = !!(
+      user.jobSeekerInfo.education?.institution &&
+      user.jobSeekerInfo.education?.course &&
+      user.jobSeekerInfo.experienceLevel &&
+      user.jobSeekerInfo.bio &&
+      user.jobSeekerInfo.skills?.length > 0 &&
+      user.jobSeekerInfo.skills.length <= 7 &&
+      user.jobSeekerInfo.links?.linkedin &&
+      user.jobSeekerInfo.links?.portfolio &&
+      user.jobSeekerInfo.preferences?.location?.length > 0 &&
+      user.jobSeekerInfo.preferences?.jobTitles?.length > 0 &&
+      typeof user.jobSeekerInfo.preferences?.remote === "boolean" &&
+      user.jobSeekerInfo.documents?.baseCv?.storagePath
+    );
 
+    user.profileCompleted = isComplete;
+    
     await user.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Document deleted successfully"
+    res.status(200).json({ 
+      success: true, 
+      message: "Document deleted successfully",
+      profileCompleted: user.profileCompleted
     });
-
+    
   } catch (error) {
-    console.error("Delete error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error"
+    console.error("Delete document error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Delete failed" 
     });
   }
 };
 
-
-module.exports = { getProfile, updateProfile, uploadDocument, deleteDocument };
+module.exports = { 
+  getProfile, 
+  updateProfile, 
+  uploadDocument, 
+  getDocumentUrl,
+  deleteDocument 
+};

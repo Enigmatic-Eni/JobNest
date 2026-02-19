@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
-  const [accountType, setAccountType] = useState("");
-  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -11,16 +9,6 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate();
-
-  const handleNext = () => {
-    if (accountType) {
-      setStep(2);
-    }
-  };
-
-  const handleBack = () => {
-    setStep(1);
-  };
 
   const handleLogin = async () => {
     setError("");
@@ -42,8 +30,9 @@ export default function SignIn() {
         body: JSON.stringify({email, password}),
       });
       const data = await res.json();
-
-      if(!res.ok){
+if(res.ok){
+ navigate("/home")
+}else if(!res.ok){
         setError(data.message || "Something went wrong");
         setLoading(false);
         return;
@@ -52,14 +41,6 @@ export default function SignIn() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       console.log("Success", data.user)
-
-      if(accountType === "student"){
-        navigate("/home")
-      }else if(accountType === "recruiter"){
-        navigate("/dashboard")
-      }else{
-        navigate("/")
-      }
     }catch(err){
       console.error("Login error:", err);
       setError("Server error. Please try again.")
@@ -70,54 +51,13 @@ export default function SignIn() {
   return (
     <div className=" font-montserrat">
       <div className=" max-w-md bg-white rounded-2xl overflow-hidden">
-        <div className=" bg-linear-to-r mb-4 from-theme to-[#130121] text-white p-6">
-          <p className=" text-2xl font-bold text-center">Contine as</p>
+    <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
+          <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
+          <p className="text-center text-blue-100 mt-2 text-sm">
+            Sign in to your account
+          </p>
         </div>
         <div className=" px-8 py-8">
-          {step === 1 && (
-            <div className=" space-y-6">
-              {[
-                {
-                  value: "student",
-                  label: "Student",
-                  icon: "👤",
-                },
-                {
-                  value: "recruiter",
-                  label: "Recruiter",
-                  icon: "🏢",
-                },
-              ].map((option) => (
-                <div
-                  key={option.value}
-                  onClick={() => {
-                    setAccountType(option.value);
-                  }}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                    accountType === option.value
-                      ? "border-theme bg-blue-50 shadow-md"
-                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                  }`}
-                >
-                  <div className=" flex items-center">
-                    <span>{option.icon}</span>
-                    <p>{option.label}</p>
-                  </div>
-                </div>
-              ))}
-              <div className="text-right">
-              <button
-                onClick={handleNext}
-                disabled={!accountType}
-                className="px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto"
-              >
-                Next
-              </button>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
             <div className="space-y-6">
             <div className="space-y-4">
               {error && (
@@ -163,13 +103,8 @@ export default function SignIn() {
                 </div>
               </div>
 
-              <div className=" flex space-x-3 pt-3">
-                <button
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200"
-                  onClick={handleBack}
-                >
-                  Back
-                </button>
+              <div className=" pt-3 justify-items-end">
+            
                 <button
                   onClick={handleLogin}
                   disabled={loading}
@@ -202,7 +137,6 @@ export default function SignIn() {
               </div>
             </div>
             </div>
-          )}
         </div>
       </div>
     </div>

@@ -1,28 +1,17 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-// Sub-document: Student Info
-const studentInfoSchema = new mongoose.Schema({
-  programType: {
-    type: String,
-    enum: ["SIWES", "NYSC", null],
-    required: false
+// Sub-document: Job Seeker Info
+const jobSeekerSchema = new mongoose.Schema({
+  education: {
+   institution: String,
+   course: String,
   },
-  institution: {
+  experienceLevel: {
     type: String,
-    trim: true
+    enum: ["intern", "entry", "junior", "mid"],
+    default: "entry"
   },
-  course: {
-    type: String,
-    trim: true
-  },
-  // fieldOfStudy: {
-  //   type: String,
-  //   trim: true
-  // },
-  // graduationYear: {
-  //   type: Number
-  // },
   skills: {
     type: [String],
     default: [],
@@ -31,95 +20,39 @@ const studentInfoSchema = new mongoose.Schema({
       message: "Maximum of 7 skills allowed"
     }
   },
-  statePreferences: {
-    type: [String],
-    default: [],
-    validate: {
-      validator: (v) => v.length <= 3,
-      message: "Maximum of 3 state preferences allowed"
-    }
+  preferences: {
+  location: [String],
+  jobTitles: [String],
+  remote: Boolean,
   },
-  deployedState: {
+  bio:{
     type: String,
-    trim: true
-  },
-  availableDuration: {
-    type: String,
-    enum: ["3 months", "6 months", "1 year", null]
-  },
-  bio: {
-    type: String,
-    trim: true,
     maxLength: 500
   },
-  linkedin: String,
-  portfolio: String,
-  documents: {
-    cv: {
-      filename: String,
-      url: String,
-      uploadedAt: Date
-    },
-    callUpLetter: {
-      filename: String,
-      url: String,
-      uploadedAt: Date
-    },
-    itLetter: {
-      filename: String,
-      url: String,
-      uploadedAt: Date
-    },
-    // transcript: {
-    //   filename: String,
-    //   url: String,
-    //   uploadedAt: Date
-    // }
-  }
-});
-
-// Sub-document: Recruiter Info
-const recruiterInfoSchema = new mongoose.Schema({
-  companyName: {
-    type: String,
-    trim: true
+  links: {
+    linkedin: String,
+    portfolio: String,
   },
-  companyWebsite: String,
-  industry: {
-    type: String,
-    trim: true
-  },
-  location: {
-    state: String,
-    city: String,
-    address: String
-  },
-  candidatePreference: {
-    type: String,
-    enum: ["SIWES", "NYSC", "Both", null],
-    default: "Both"
-  },
-  bio: {
-    type: String,
-    trim: true,
-    maxLength: 1000
-  },
-  companyLogo: {
+ documents:{
+  baseCv:{
     filename: String,
     url: String,
+    storagePath: String, 
+    mimeType: String,
     uploadedAt: Date
   },
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
-  verificationMethod: {
-    type: String,
-    enum: ["email_domain", "manual", "document", null]
+  coverLetter:{
+    filename: String,
+    url: String,
+    storagePath: String, 
+    mimeType: String,
+    uploadedAt: Date
   }
+}
 });
 
 // MAIN USER MODEL
+
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -142,18 +75,26 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String
   },
-  accountType: {
+    role: {
     type: String,
-    required: true,
-    enum: ["student", "recruiter"]
+    enum: ["job_seeker"],
+    default: "job_seeker"
   },
+
   profileCompleted: {
     type: Boolean,
     default: false
   },
-  studentInfo: studentInfoSchema,
-  recruiterInfo: recruiterInfoSchema
-});
+
+ jobSeekerInfo: {
+  type: jobSeekerSchema,
+  default: {}
+}
+},
+{
+  timestamps: true
+}
+);
 
 // Password hashing
 userSchema.pre("save", async function (next) {

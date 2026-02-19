@@ -3,8 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp({openLoginDialog}) {
-  const [step, setStep] = useState(1);
-  const [accountType, setAccountType] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -14,13 +12,6 @@ export default function SignUp({openLoginDialog}) {
     email: "",
     password: "",
     phone: "",
-    // Job seeker fields
-    location: "",
-    skills: "",
-    // Recruiter fields
-    companyName: "",
-    companyWebsite: "",
-    industry: "",
   });
 
   const navigate = useNavigate();
@@ -31,63 +22,32 @@ export default function SignUp({openLoginDialog}) {
     setError(""); // Clear error when user types
   };
 
-  const nextStep = () => {
-    if (step === 1 && !accountType) {
-      setError("Please select an account type");
-      return;
-    }
-    if (step === 2) {
-      if (!formData.fullName || !formData.email || !formData.password) {
-        setError("Please fill in all required fields");
-        return;
-      }
-      if (formData.password.length < 6) {
-        setError("Password must be at least 6 characters");
-        return;
-      }
-    }
-    setError("");
-    if (step < 3) setStep(step + 1);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+const {fullName, email, password} = formData;
 
-  const prevStep = () => {
-    if (step > 1) setStep(step - 1);
-    setError("");
-  };
+if(!fullName || !email || !password) {
+  setError("Fullname, email and password are required");
+  return;
+}
+if(password.length < 6){
+  setError("Password must be at least 6 characters");
+  return;
+}
 
-  const handleSubmit = async () => {
     setLoading(true);
     setError("");
     try {
       const API_URL = import.meta.env.VITE_API_URL;
 
-      const dataToSend = {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        accountType: accountType,
+      const response = await axios.post(`${API_URL}/auth/register`, {...formData,
         phone: formData.phone || undefined,
-      };
-
-      if(accountType === "student"){
-        dataToSend.studentInfo ={
-          skills: formData.skills?formData.skills.split(',').map(skill=> skill.trim()).filter(Boolean): [],
-        }
-      }else if(accountType === "recruiter"){
-        dataToSend.recruiterInfo ={
-          companyName: formData.companyName || undefined,
-          companyWebsite: formData.companyWebsite || undefined,
-          industry: formData.industry || undefined
-        };
-      }
-      console.log("Backend Data: ", dataToSend);
-
-      const response = await axios.post(`${API_URL}/auth/register`, dataToSend);
+      });
 
       console.log("Success:", response.data);
 
       localStorage.setItem("token", response.data.token);
-localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       setSuccess(true);
 
@@ -95,29 +55,19 @@ localStorage.setItem("user", JSON.stringify(response.data.user));
       console.error("Error:", error);
       setError( error.response?.data?.message || "An error occured during registration. Please try again."
       );
+    }finally {
+      setLoading(false);
     }
   };
 
   const handleLogin = () =>{
-    // openLoginDialog();
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if(user.accountType === "student"){
-      navigate("/home");
-    }else if(user.accountType === "recruiter"){
-      navigate("/recruiter-home");
+  navigate("/home");
     }
-  };
 
   if (success) {
     return (
       <div className="font-montserrat">
         <div className="max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
-          {/* Header */}
-          <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
-            <h2 className="text-2xl font-bold text-center">Create Account</h2>
-          </div>
-
           {/* Success Content */}
           <div className="p-8">
             <div className="text-center py-8">
@@ -142,34 +92,12 @@ localStorage.setItem("user", JSON.stringify(response.data.user));
   }
 
   return (
+    <form onSubmit={handleSubmit} >
     <div className=" font-montserrat">
       <div className="max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* Header */}
         <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
           <h2 className="text-2xl font-bold text-center">Create Account</h2>
-          <div className="flex justify-center mt-4">
-            {[1, 2, 3].map((num) => (
-              <div key={num} className="flex items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step >= num ? "bg-white text-theme" : "bg-theme text-white"
-                  }`}
-                >
-                  {step > num ? "✓" : num}
-                </div>
-                {num < 3 && (
-                  <div
-                    className={`w-8 h-1 mx-1 ${
-                      step > num ? "bg-white" : "bg-theme"
-                    }`}
-                  ></div>
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-blue-100 mt-2 text-sm">
-            Step {step} of 3
-          </p>
         </div>
 
         {/* Form Content */}
@@ -180,87 +108,7 @@ localStorage.setItem("user", JSON.stringify(response.data.user));
             </div>
           )}
 
-          {/* STEP 1: Account Type */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  Choose Your Path
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Select the type of account you'd like to create
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  {
-                    value: "student",
-                    label: "Student [SIWES/NYSC]",
-                    icon: "👤",
-                    desc: "Looking for opportunities",
-                  },
-                  {
-                    value: "recruiter",
-                    label: "Recruiter",
-                    icon: "🏢",
-                    desc: "Hiring talented people",
-                  },
-                ].map((option) => (
-                  <div
-                    key={option.value}
-                    onClick={() => {
-                      setAccountType(option.value);
-                      setFormData((prev) => ({
-                        ...prev,
-                        accountType: option.value,
-                      })); // Update formData with accountType
-                    }}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                      accountType === option.value
-                        ? "border-theme bg-blue-50 shadow-md"
-                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <span className="text-2xl mr-3">{option.icon}</span>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-800">
-                          {option.label}
-                        </h4>
-                        <p className="text-sm text-gray-500">{option.desc}</p>
-                      </div>
-                      {/* <div
-                        className={`w-5 h-5 rounded-full border-2 ${
-                          accountType === option.value
-                            ? "border-theme bg-theme"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {accountType === option.value && (
-                          <div className="w-full h-full rounded-full bg-theme flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </div> */}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: Basic Information */}
-          {step === 2 && (
             <div className="space-y-5">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  Basic Information
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Tell us a bit about yourself
-                </p>
-              </div>
 
               {[
                 {
@@ -281,6 +129,13 @@ localStorage.setItem("user", JSON.stringify(response.data.user));
                   type: "password",
                   placeholder: "Create a password (min. 6 characters)",
                 },
+                {
+                  name: "phone",
+                  label: "Phone Number",
+                  type: "tel",
+                  placeholder: "Enter your phone number. +234..."
+                },
+              
               ].map((field) => (
                 <div key={field.name}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -296,124 +151,7 @@ localStorage.setItem("user", JSON.stringify(response.data.user));
                   />
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* STEP 3: Role-specific fields */}
-          {step === 3 && accountType === "student" && (
-            <div className="space-y-5">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  Job Seeker Details
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Help us match you with the right opportunities
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Lagos, Abuja"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-theme focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Skills
-                </label>
-                <input
-                  type="text"
-                  name="skills"
-                  value={formData.skills}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Programming, Accounting, SMM"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-theme focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                />
-              </div>
-            </div>
-          )}
-
-          {step === 3 && accountType === "recruiter" && (
-            <div className="space-y-5">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  Company Details
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Tell us about your company
-                </p>
-              </div>
-
-              {[
-                {
-                  name: "companyName",
-                  label: "Company Name",
-                  type: "text",
-                  placeholder: "Enter company name",
-                },
-                {
-                  name: "companyWebsite",
-                  label: "Company Website",
-                  type: "url",
-                  placeholder: "https://example.com",
-                },
-                {
-                  name: "industry",
-                  label: "Industry",
-                  type: "text",
-                  placeholder: "e.g., Technology, Healthcare",
-                },
-              ].map((field) => (
-                <div key={field.name}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {field.label}
-                  </label>
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    value={formData[field.name]}
-                    onChange={handleInputChange}
-                    placeholder={field.placeholder}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-theme focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between pt-8">
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="px-6 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
-              >
-                ← Back
-              </button>
-            )}
-
-            {step < 3 && (
-              <button
-                type="button"
-                onClick={nextStep}
-                disabled={step === 1 && !accountType}
-                className="px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 ml-auto"
-              >
-                Next →
-              </button>
-            )}
-
-            {step === 3 && (
-              <button
+            <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
@@ -446,10 +184,11 @@ localStorage.setItem("user", JSON.stringify(response.data.user));
                   "Create Account ✨"
                 )}
               </button>
-            )}
+
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      </form>
   );
 }

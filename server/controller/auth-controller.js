@@ -11,37 +11,29 @@ const generateToken = (userId) => {
   );
 };
 
-/* Get public-safe user profile (removes sensitive data)*/
 const getPublicProfile = (user) => {
   return {
     id: user._id,
     fullName: user.fullName,
     email: user.email,
     phone: user.phone,
-    accountType: user.accountType,
     profileCompleted: user.profileCompleted,
-    ...(user.accountType === 'student' && user.studentInfo && {
-      studentInfo: user.studentInfo
-    }),
-    ...(user.accountType === 'recruiter' && user.recruiterInfo && {
-      recruiterInfo: user.recruiterInfo
-    })
   };
 };
 
-// ============================================
+
 // AUTH CONTROLLERS
-// ============================================
+
 
 const registerUser = async (req, res) => {
   try {
-    const { fullName, email, password, accountType, phone } = req.body;
+    const { fullName, email, password, phone } = req.body;
 
     // Validate required fields
-    if (!fullName || !email || !password || !accountType) {
+    if (!fullName || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Full name, email, password, and account type are required"
+        message: "Full name, email, and password are required"
       });
     }
 
@@ -62,20 +54,12 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Validate account type
-    if (!['student', 'recruiter'].includes(accountType)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid account type. Must be 'student' or 'recruiter'"
-      });
-    }
-
+  
     // Create new user
     const user = await User.create({
       fullName,
       email: email.toLowerCase(),
       password,
-      accountType,
       phone: phone || undefined,
       profileCompleted: false
     });
@@ -93,13 +77,10 @@ const registerUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Registration error:", error);
+    // console.error("Registration error:", error);
     res.status(500).json({
       success: false,
       message: "Server error during registration",
-      // this only shows specific error in development but shows the "Server error during registration" in production.
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      // remember to comment out this error part when trying to push to github
     });
   }
 };
@@ -148,11 +129,11 @@ const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Login error:", error);
+    // console.error("Login error:", error);
     res.status(500).json({
       success: false,
       message: "Server error during login",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      // error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

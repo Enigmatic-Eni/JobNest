@@ -4,7 +4,6 @@ const connectToDB = require("./database/db");
 const authRoute = require("./routes/auth-routes")
 const cors = require('cors');
 const path = require('path')
-const profileRoute = require('./routes/profile-route')
 const profileRoutes = require("./routes/profile-route");
 
 const app = express();
@@ -28,16 +27,20 @@ app.use(express.json());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/test-cors", (req, res) => {
-  res.json({ message: "CORS is working! Lmao" });
-});
 
 app.use('/auth', authRoute )
 app.use("/uploads", express.static("uploads"));
 app.use("/profile", profileRoutes) ;
-// app.use('/profile', profileRoute)
+
 
 app.use((err, req, res, next) => {
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ 
+      success: false, 
+      message: "File too large. Maximum size is 5MB" 
+    });
+  }
+
   console.error("\n🚨 UNHANDLED ERROR 🚨");
   console.error("Error:", err);
   console.error("Stack:", err.stack);
