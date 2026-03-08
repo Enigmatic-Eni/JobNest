@@ -71,8 +71,23 @@ const updateProfile = async (req, res) => {
       user.jobSeekerInfo.preferences?.location?.length > 0 &&
       user.jobSeekerInfo.preferences?.jobTitles?.length > 0 &&
       typeof user.jobSeekerInfo.preferences?.remote === "boolean" &&
-      user.jobSeekerInfo.documents?.baseCv?.storagePath
+      user.jobSeekerInfo.documents?.baseCv?.storagePath &&
+      user.jobSeekerInfo.documents?.coverLetter?.storagePath 
     );
+
+if (jobSeekerInfo?.skills) {
+  const skillsArray = Array.isArray(jobSeekerInfo.skills)
+    ? jobSeekerInfo.skills
+    : jobSeekerInfo.skills.split(",").map(s => s.trim()).filter(Boolean);
+
+  if (skillsArray.length > 7) {
+    return res.status(400).json({
+      success: false,
+      message: "You can only add a maximum of 7 skills"
+    });
+  }
+    user.jobSeekerInfo.skills = skillsArray;
+}
 
     user.profileCompleted = isComplete;
 
@@ -296,7 +311,8 @@ const deleteDocument = async (req, res) => {
       user.jobSeekerInfo.preferences?.location?.length > 0 &&
       user.jobSeekerInfo.preferences?.jobTitles?.length > 0 &&
       typeof user.jobSeekerInfo.preferences?.remote === "boolean" &&
-      user.jobSeekerInfo.documents?.baseCv?.storagePath
+      user.jobSeekerInfo.documents?.baseCv?.storagePath &&
+      user.jobSeekerInfo.documents?.coverLetter?.storagePath
     );
 
     user.profileCompleted = isComplete;

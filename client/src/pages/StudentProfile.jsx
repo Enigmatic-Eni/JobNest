@@ -87,6 +87,16 @@ export default function StudentProfile() {
     setError("");
     setSuccess("");
 
+     const skillsArray = Array.isArray(formData.skills)
+    ? formData.skills
+    : formData.skills.split(",").map(s => s.trim()).filter(Boolean);
+
+  if (skillsArray.length > 7) {
+    setError("You can only add a maximum of 7 skills. Please remove some before saving.");
+    return; // stops the API call entirely
+  }
+
+
     try {
       const token = localStorage.getItem("token");
 
@@ -249,6 +259,7 @@ export default function StudentProfile() {
     if (!user.jobSeekerInfo.preferences?.jobTitles?.length) missing.push("Preferred Job Titles");
     if (typeof user.jobSeekerInfo.preferences?.remote !== "boolean") missing.push("Remote Preference");
     if (!user.jobSeekerInfo.documents?.baseCv?.storagePath) missing.push("CV Upload");
+     if (!user.jobSeekerInfo.documents?.coverLetter?.storagePath) missing.push("Cover Letter Upload");
 
     return {
       complete: user.profileCompleted,
@@ -290,7 +301,7 @@ export default function StudentProfile() {
   // ---------------------- UI ----------------------
   return (
     <motion.div 
-      className="px-5 pb-10 min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100"
+      className="px-5 pb-10 min-h-screen bg-linear-to-br from-white via-gray-50 to-gray-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
@@ -376,7 +387,7 @@ export default function StudentProfile() {
         </motion.div>
 
         {/* Personal Info */}
-        <div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white">
+        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
           <p className="pb-3 font-semibold text-gray-800">Personal Information</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -431,10 +442,10 @@ export default function StudentProfile() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Academic Info */}
-        <div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white">
+        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
           <p className="pb-3 font-semibold text-gray-800">Academic Information</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -511,10 +522,10 @@ export default function StudentProfile() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Job Preferences */}
-        <div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white">
+        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
           <p className="pb-3 font-semibold text-gray-800">Job Preferences</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="col-span-1 md:col-span-2">
@@ -581,10 +592,10 @@ export default function StudentProfile() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Links */}
-        <div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white">
+        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
           <p className="pb-3 font-semibold text-gray-800">Professional Links</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -641,10 +652,10 @@ export default function StudentProfile() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Documents */}
-        <div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white">
+        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
           <p className="pb-3 font-semibold text-gray-800">Documents</p>
 
           {uploading && (
@@ -652,7 +663,7 @@ export default function StudentProfile() {
               Uploading... Please wait
             </div>
           )}
-
+<div className=" space-y-4">
           <div className="space-y-3">
             <DocumentUpload
               label="CV / Resume"
@@ -664,7 +675,21 @@ export default function StudentProfile() {
               required={true}
             />
           </div>
-        </div>
+
+          
+          <div className="space-y-3">
+            <DocumentUpload
+              label="Cover Letter"
+              documentType="coverLetter"
+              document={user.jobSeekerInfo?.documents?.coverLetter}
+              onUpload={handleFileUpload}
+              onDelete={handleDeleteDocument}
+              onView={handleViewDocument}
+              required={true}
+            />
+          </div>
+          </div>
+        </motion.div>
 
         {/* Save Button */}
         {editMode && (
