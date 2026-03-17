@@ -7,11 +7,6 @@ const supabase = createClient(
     
 );
 
-console.log("SUPABASE_URL:", process.env.SUPABASE_URL);
-console.log(
-  "SERVICE ROLE EXISTS:",
-  !!process.env.SUPABASE_SERVICE_ROLE_KEY
-);
 
 
 module.exports = supabase;
