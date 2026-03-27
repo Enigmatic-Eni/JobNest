@@ -5,6 +5,7 @@ import JobDescription from './pages/JobDescription'
 import JobSeekerHome from './pages/JobSeekerHome'
 // import RecruiterHome from './pages/RecruiterHome'
 import StudentProfile from './pages/StudentProfile'
+import JobDetail from './pages/JobDetail'
 
 function App() {
  
@@ -16,6 +17,7 @@ function App() {
     <Route path = 'jobdescription' element={<JobDescription/>}/>
     <Route path = 'home' element={<JobSeekerHome/>}/>
      {/* <Route path = 'recruiter-home' element={<RecruiterHome/>}/> */}
+     <Route path='job/:id' element={<JobDetail/>}/>
     <Route path = 'profile' element={<StudentProfile/>}/>
 
    </Routes>

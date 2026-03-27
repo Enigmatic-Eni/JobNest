@@ -1,46 +1,60 @@
+import { useState, useCallback, useEffect } from "react";
 import { fetchJobs } from "@/services/jobService";
-import { useCallback, useState } from "react";
-
-import React from 'react'
-
 
 export default function useJobs() {
-    const [jobs, setJobs] = useState([]);
-    const [pagination, setPagination] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+  const [jobs, setJobs] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // ✅ null not ""
 
-    const [filters, setFilters] = useState({
-        keyword: "",
-        location: "",
-        source: "",
-        limit: 20,
-        page: 1
-    });
+  const [filters, setFilters] = useState({
+    keyword: "",
+    location: "",
+    source: "",
+    page: 1,
+    limit: 20
+  });
 
-    const loadJobs = useCallback(async(overrideFilters = {})=>{
-        setLoading(true);
-        setError("");
+  // ✅ FIXED: Stable loadJobs - NO deps
+  const loadJobs = useCallback(async (overrideFilters = {}) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const params = { ...filters, ...overrideFilters };
+      // console.log("🔍 API CALL:", params);
+      
+      const data = await fetchJobs(params);
+      setJobs(data.jobs || []);
+      setPagination(data.pagination);
+    } catch (err) {
+      console.error("❌ API ERROR:", err.response?.data || err.message);
+      setError(err.response?.data?.message || "Failed to load jobs");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]); // ✅ Only filters dep
 
-        try{
-            const activeFilters = {...filters, ...overrideFilters};
-            const data = await fetchJobs(activeFilters);
-            setJobs(data.jobs);
-            setPagination(data.pagination);
-        }catch(err){
-            setError("Failed to load jobs. Please try again.");
-        }finally{
-            setLoading(false);
-        }
-    }, [filters])
+  // ✅ STABLE: No infinite loop
+  const updateFilters = useCallback((newFilters) => {
+    // console.log("🔄 Update filters:", newFilters);
+    const updated = { ...filters, ...newFilters, page: 1 };
+    setFilters(updated);
+    loadJobs(updated);
+  }, [filters, loadJobs]);
 
-    const updateFilters= (newFilters) =>{
-        const updated ={...filters, ...newFilters, page: 1};
-        setFilters(updated);
-        loadJobs(updated);
-    };
+  const changePage = useCallback((page) => {
+    const updated = { ...filters, page };
+    setFilters(updated);
+    loadJobs(updated);
+  }, [filters, loadJobs]);
 
-  return{
+  // ✅ Load once on mount
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  return {
     jobs,
     pagination,
     loading,

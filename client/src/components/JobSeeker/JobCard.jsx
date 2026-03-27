@@ -1,4 +1,7 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Building2, MapPin } from 'lucide-react';
 
 
 const CompanyAvatar = ({name}) =>{
@@ -30,10 +33,50 @@ const SourceBadge = ({ source }) => {
   );
 };
 
-export default function JobCard() {
-
+export default function JobCard({job, index}) {
+  const navigate = useNavigate()
 
   return (
-    <div></div>
+    <motion.div initial={{opacity: 0, y: 20}}
+    animate={{opacity: 1, y:0}}
+    transition={{delay: index*0.05}}
+    className='bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between'>
+      <div>
+        <div className='flex items-start justify-between mb-3'>
+          <CompanyAvatar name ={job.company}/>
+          <SourceBadge source = {job.source}/>
+        </div>
+      
+      
+      <h3 className="font-semibold text-gray-800 text-[15px] leading-snug mb-1 line-clamp-2">{job.title}</h3>
+         <div className="flex items-center gap-1 text-gray-500 text-[12px] mb-1">
+          <Building2 className="w-3 h-3" />
+          <span>{job.company}</span>
+        </div>
+
+        <div className="flex items-center gap-1 text-gray-500 text-[12px] mb-3">
+          <MapPin className="w-3 h-3" />
+          <span className="line-clamp-1">{job.location}</span>
+        </div>
+      </div>
+
+      {/* Bottom section */}
+      <div className="flex gap-2 mt-2">
+        <button
+          onClick={() => navigate(`/job/${job._id}`)}
+          className="flex-1 border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-[12px] hover:bg-gray-50 transition-all"
+        >
+          Details
+        </button>
+        <a
+          href={job.applyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 bg-theme text-white px-3 py-2 rounded-lg text-[12px] hover:bg-theme-hover transition-all text-center"
+        >
+          Apply Now
+        </a>
+      </div>
+    </motion.div>
   )
 }

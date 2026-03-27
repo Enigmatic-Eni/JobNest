@@ -1,24 +1,48 @@
-import React from "react";
-import { CiLocationOn, CiSearch } from "react-icons/ci";
+import { Search } from 'lucide-react';
+import React, { useState } from 'react';
 
-export default function SearchBar() {
+export default function SearchBar({ onSearch }) {  
+  const [keyword, setKeyword] = useState('');
+
+  const handleSearch = () => {
+    // console.log('🔍 Searching:', keyword);
+    onSearch(keyword.trim() || '');  
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleClear = () => {
+    setKeyword('');           
+    onSearch('');           
+  };
+
   return (
-    <div>
-      <div className="search-bar flex gap-8">
-        <div className="relative max-w-[599px] text-text">
-          <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-
-          <input
-            type="text"
-            className=" w-[599px] pl-10 pr-4 py-4 bg-white rounded focus:outline-none border-2"
-            placeholder=" Search for Jobs"
-          />
-        </div>
-
-        <button className="rounded  bg-theme py-3 px-8 text-white hover:bg-theme-hover cursor-pointer">
+    <div className="flex items-center gap-3 bg-white rounded-xl shadow-sm p-4 border border-gray-200 max-w-3xl">
+      <Search className="text-gray-400 w-5 h-5" />
+      <input 
+        type="text" 
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Search for jobs, companies..."
+        className="flex-1 outline-none text-gray-500 text-sm"
+      />
+       <button 
+          onClick={handleSearch} 
+          className="bg-theme hover:bg-theme-hover text-white px-6 py-2 rounded-xl text-sm font-medium transition-all"
+        >
           Search
         </button>
-      </div>
+      {keyword && (
+        <button 
+          onClick={handleClear} 
+          className="text-gray-500 hover:text-gray-700 text-sm font-medium"
+        >
+          Clear
+        </button>
+      )}
     </div>
   );
 }

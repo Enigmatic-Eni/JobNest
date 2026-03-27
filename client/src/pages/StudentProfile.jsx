@@ -301,7 +301,7 @@ export default function StudentProfile() {
   // ---------------------- UI ----------------------
   return (
     <motion.div 
-      className="px-5 pb-10 min-h-screen bg-linear-to-br from-white via-gray-50 to-gray-100"
+      className=" pb-10 min-h-screen bg-linear-to-br from-white via-gray-50 to-gray-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}

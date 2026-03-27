@@ -24,7 +24,7 @@ const getJobs = async (req, res) =>{
         }
 
         if(source){
-            filter.source = {$regex: location, $options: 'i'};
+            filter.source = {$regex: source, $options: 'i'};
         }
 
         filter.isActive = true;

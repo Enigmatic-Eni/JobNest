@@ -40,7 +40,7 @@ if(res.ok){
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      console.log("Success", data.user)
+      // console.log("Success", data.user)
     }catch(err){
       console.error("Login error:", err);
       setError("Server error. Please try again.")
