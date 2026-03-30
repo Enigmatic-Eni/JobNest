@@ -10,7 +10,7 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "@/components/ui/dialog";
-import SignUp from '@/components/SignUp';
+import SignUp from '@/pages/SignUp';
 import SignIn from '@/components/SignIn';
 
 const Home = () => {
@@ -52,12 +52,10 @@ const Home = () => {
    <DialogContent>
      <DialogTitle></DialogTitle>
      <DialogDescription></DialogDescription>
-     <SignUp 
-       openLoginDialog={() => {
-         setOpenRegister(false); // close Register modal
-         setOpenLogin(true); // open Login modal
-       }} 
-     />
+     <SignUp
+  openLoginDialog={() => { setOpenRegister(false); setOpenLogin(true); }}
+  closeDialog={() => setOpenRegister(false)}
+/>
    </DialogContent>
  </Dialog>
 {/* 
