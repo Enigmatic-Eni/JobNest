@@ -1,12 +1,13 @@
+import { Eye, EyeClosed, X } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function SignIn() {
+export default function SignIn({closeDialog}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -14,25 +15,25 @@ export default function SignIn() {
     setError("");
     setLoading(true);
 
-    if(!email || !password){
+    if (!email || !password) {
       setError("Please enter all required fields");
       setLoading(false);
       return;
     }
-    try{
+    try {
       const API_URL = import.meta.env.VITE_API_URL;
 
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({email, password}),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-if(res.ok){
- navigate("/home")
-}else if(!res.ok){
+      if (res.ok) {
+        navigate("/home");
+      } else if (!res.ok) {
         setError(data.message || "Something went wrong");
         setLoading(false);
         return;
@@ -41,30 +42,37 @@ if(res.ok){
       localStorage.setItem("user", JSON.stringify(data.user));
 
       // console.log("Success", data.user)
-    }catch(err){
+    } catch (err) {
       console.error("Login error:", err);
-      setError("Server error. Please try again.")
-    }finally{
-      setLoading(false)
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
   return (
     <div className=" font-montserrat">
       <div className=" max-w-md bg-white rounded-2xl overflow-hidden">
-    <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
+        <div className="bg-linear-to-r from-theme to-[#130121] p-6 text-white">
+          <div className=" flex justify-between">
+            <div></div>
           <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
+          <button type="button" onClick={closeDialog} className="p-1 rounded-full hover:bg-white/20 transition-colors">
+            <X size={18}/>
+          </button>
+
+          </div>
           <p className="text-center text-blue-100 mt-2 text-sm">
             Sign in to your account
           </p>
         </div>
         <div className=" px-8 py-8">
-            <div className="space-y-6">
+          <div className="space-y-6">
             <div className="space-y-4">
               {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                    {error}
-                  </div>
-                )}
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email
@@ -97,46 +105,48 @@ if(res.ok){
                     type="button"
                   >
                     <span className="text-gray-500 ">
-                      {showPassword ? "🙈" : "👁️"}
+                      {showPassword ? <EyeClosed className=" w-[80%]"/> : <Eye className=" w-[80%]"/>}
                     </span>
                   </button>
                 </div>
               </div>
 
               <div className=" pt-3 justify-items-end">
-            
                 <button
                   onClick={handleLogin}
                   disabled={loading}
                   className=" flex-1 px-6 py-3 bg-linear-to-r from-theme to-[#130121] text-white rounded-xl font-medium hover:from-theme hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200  flex justify-center items-center"
-         
-                >{loading?( <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Loading...
-                  </>):("Login")}
-                  
+                >
+                  {loading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Loading...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </button>
               </div>
             </div>
-            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ export default function useJobs() {
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null); // ✅ null not ""
+  const [error, setError] = useState(null);
 
   const [filters, setFilters] = useState({
     keyword: "",
@@ -33,9 +33,9 @@ export default function useJobs() {
     } finally {
       setLoading(false);
     }
-  }, [filters]); // ✅ Only filters dep
+  }, [filters]); 
 
-  // ✅ STABLE: No infinite loop
+  
   const updateFilters = useCallback((newFilters) => {
     // console.log("🔄 Update filters:", newFilters);
     const updated = { ...filters, ...newFilters, page: 1 };
@@ -50,9 +50,9 @@ export default function useJobs() {
   }, [filters, loadJobs]);
 
   // ✅ Load once on mount
-  useEffect(() => {
-    loadJobs();
-  }, []);
+  // useEffect(() => {
+  //   loadJobs();
+  // }, []);
 
   return {
     jobs,

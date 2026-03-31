@@ -18,6 +18,16 @@ const getPublicProfile = (user) => {
     email: user.email,
     phone: user.phone,
     profileCompleted: user.profileCompleted,
+    jobSeekerInfo:{
+      skills: user?.jobSeekerInfo?.skills || [],
+      experienceLevel: user?.jobSeekerInfo?.experienceLevel || "",
+      preferences:{
+          location: user?.jobSeekerInfo?.preferences?.location || [],
+          jobTitles: user?.jobSeekerInfo?.preferences?.jobTitles || [],
+          remote: user?.jobSeekerInfo?.preferences?.remote || false
+      } 
+
+    }
   };
 };
 

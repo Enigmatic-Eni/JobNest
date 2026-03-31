@@ -4,7 +4,7 @@ import { PenLine, CheckCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import API from "@/lib/api";
 import { motion } from "framer-motion";
-import DocumentUpload from "@/components/JobSeeker/DocumentUpload";
+import DocumentUpload from "@/components/Profile/DocumentUpload";
 
 export default function StudentProfile() {
   const navigate = useNavigate();

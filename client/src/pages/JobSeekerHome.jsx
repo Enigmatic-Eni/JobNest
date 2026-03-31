@@ -10,7 +10,6 @@ import Pagination from "@/components/JobSeeker/Pagination";
 import Navbar from "@/components/Navbar";
 
 export default function JobSeekerHome() {
-
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -21,25 +20,37 @@ export default function JobSeekerHome() {
     error,
     loadJobs,
     updateFilters,
-    changePage
+    changePage,
   } = useJobs();
 
   // Load user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
+    if (!storedUser) {
       navigate("/");
+      return;
+    }
+
+    const parsed = JSON.parse(storedUser);
+    setUser(parsed);
+
+    // Use preferred job titles first, fall back to skills, then load all
+    const jobTitles = parsed?.jobSeekerInfo?.preferences?.jobTitles || [];
+    const skills = parsed?.jobSeekerInfo?.skills || [];
+
+    if (jobTitles.length > 0) {
+      loadJobs({ keyword: jobTitles[0] });
+    } else if (skills.length > 0) {
+      loadJobs({ keyword: skills[0] });
+    } else {
+      loadJobs();
     }
   }, [navigate]);
 
   // Load jobs on mount
-  useEffect(() => {
-    loadJobs();
-  }, []);
-
-
+  // useEffect(() => {
+  //   loadJobs();
+  // }, []);
 
   const handleSearch = (keyword) => {
     // console.log("🔍 Search triggered:", keyword);
@@ -51,10 +62,8 @@ export default function JobSeekerHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-
-      {/* Navbar */}
-<Navbar/>
+   <div className="min-h-screen bg-gray-50">
+      <Navbar />
 
       <div className="px-6 md:px-16 py-8 space-y-6">
 
@@ -70,6 +79,38 @@ export default function JobSeekerHome() {
           <p className="text-gray-400 text-lg mt-1">
             Here are the best jobs we found for you today.
           </p>
+
+          {/* Preferred job title tags */}
+          {user?.jobSeekerInfo?.preferences?.jobTitles?.length > 0 && (
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <span className="text-sm text-gray-500">Job titles:</span>
+              {user.jobSeekerInfo.preferences.jobTitles.map((title) => (
+                <span
+                  key={title}
+                  onClick={() => updateFilters({ keyword: title })}
+                  className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full cursor-pointer hover:bg-blue-200 transition-all"
+                >
+                  {title}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Skills tags */}
+          {user?.jobSeekerInfo?.skills?.length > 0 && (
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className="text-sm text-gray-500">Skills:</span>
+              {user.jobSeekerInfo.skills.map((skill) => (
+                <span
+                  key={skill}
+                  onClick={() => updateFilters({ keyword: skill })}
+                  className="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-full cursor-pointer hover:bg-gray-200 transition-all"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         {/* Search */}
