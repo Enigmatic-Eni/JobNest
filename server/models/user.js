@@ -48,8 +48,25 @@ const jobSeekerSchema = new mongoose.Schema({
     mimeType: String,
     uploadedAt: Date
   }
+},
+generatedDocs:{
+  type: Map,
+  of: new mongoose.Schema({
+    cv:{
+      docxUrl: String,
+      docxPath: String,
+      generatedAt: Date
+    },
+    coverLetter:{
+      docxUrl: String,
+      docxPath: String,
+      generatedAt: Date
+    }
+  }, {_id: false}),
+  default: {}
 }
 });
+
 
 // MAIN USER MODEL
 
