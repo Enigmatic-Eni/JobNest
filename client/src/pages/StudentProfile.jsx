@@ -27,7 +27,7 @@ export default function StudentProfile() {
     preferencesRemote: false,
     bio: "",
     linksLinkedin: "",
-    linksPortfolio: ""
+    linksPortfolio: "",
   });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function StudentProfile() {
       }
 
       const res = await API.get("/profile", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const userData = res.data.user;
@@ -63,7 +63,7 @@ export default function StudentProfile() {
         preferencesRemote: info.preferences?.remote || false,
         bio: info.bio || "",
         linksLinkedin: info.links?.linkedin || "",
-        linksPortfolio: info.links?.portfolio || ""
+        linksPortfolio: info.links?.portfolio || "",
       });
     } catch (err) {
       console.error("Error fetching profile:", err);
@@ -76,9 +76,9 @@ export default function StudentProfile() {
   // ---------------------- HANDLE INPUT CHANGE ----------------------
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -87,15 +87,19 @@ export default function StudentProfile() {
     setError("");
     setSuccess("");
 
-     const skillsArray = Array.isArray(formData.skills)
-    ? formData.skills
-    : formData.skills.split(",").map(s => s.trim()).filter(Boolean);
+    const skillsArray = Array.isArray(formData.skills)
+      ? formData.skills
+      : formData.skills
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
 
-  if (skillsArray.length > 7) {
-    setError("You can only add a maximum of 7 skills. Please remove some before saving.");
-    return; // stops the API call entirely
-  }
-
+    if (skillsArray.length > 7) {
+      setError(
+        "You can only add a maximum of 7 skills. Please remove some before saving.",
+      );
+      return; // stops the API call entirely
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -106,33 +110,68 @@ export default function StudentProfile() {
         jobSeekerInfo: {
           education: {
             institution: formData.educationInstitution,
-            course: formData.educationCourse
+            course: formData.educationCourse,
           },
           experienceLevel: formData.experienceLevel,
-          skills: Array.isArray(formData.skills) 
-            ? formData.skills 
-            : formData.skills.split(",").map(s => s.trim()).filter(Boolean),
+          skills: Array.isArray(formData.skills)
+            ? formData.skills
+            : formData.skills
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean),
           preferences: {
-            location: Array.isArray(formData.preferencesLocation) 
-              ? formData.preferencesLocation 
-              : formData.preferencesLocation.split(",").map(s => s.trim()).filter(Boolean),
-            jobTitles: Array.isArray(formData.preferencesJobTitles) 
-              ? formData.preferencesJobTitles 
-              : formData.preferencesJobTitles.split(",").map(s => s.trim()).filter(Boolean),
-            remote: formData.preferencesRemote
+            location: Array.isArray(formData.preferencesLocation)
+              ? formData.preferencesLocation
+              : formData.preferencesLocation
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+            jobTitles: Array.isArray(formData.preferencesJobTitles)
+              ? formData.preferencesJobTitles
+              : formData.preferencesJobTitles
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+            remote: formData.preferencesRemote,
           },
           bio: formData.bio,
           links: {
             linkedin: formData.linksLinkedin,
-            portfolio: formData.linksPortfolio
-          }
-        }
+            portfolio: formData.linksPortfolio,
+          },
+        },
       };
 
       const res = await API.put("/profile", dataToSend, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
+      const existingUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const updatedUser = {
+        ...existingUser,
+        fullName: formData.fullName,
+        jobSeekerInfo: {
+          ...existingUser.jobSeekerInfo,
+          skills: skillsArray,
+          preferences: {
+            ...existingUser.jobSeekerInfo?.preferences,
+            jobTitles: Array.isArray(formData.preferencesJobTitles)
+              ? formData.preferencesJobTitles
+              : formData.preferencesJobTitles
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+            location: Array.isArray(formData.preferencesLocation)
+              ? formData.preferencesLocation
+              : formData.preferencesLocation
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+            remote: formData.preferencesRemote,
+          },
+        },
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       setSuccess("Profile updated successfully! ✅");
       setEditMode(false);
       fetchProfile();
@@ -159,9 +198,9 @@ export default function StudentProfile() {
     const allowedTypes = [
       "application/pdf",
       "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
-    
+
     if (!allowedTypes.includes(file.type)) {
       setError("Only PDF and Word documents are allowed");
       return;
@@ -178,13 +217,15 @@ export default function StudentProfile() {
       formData.append("documentType", documentType);
 
       const res = await API.post("/profile/upload", formData, {
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      setSuccess(`${documentType === 'baseCv' ? 'CV' : 'Cover Letter'} uploaded successfully! ✅`);
+      setSuccess(
+        `${documentType === "baseCv" ? "CV" : "Cover Letter"} uploaded successfully! ✅`,
+      );
       fetchProfile();
 
       setTimeout(() => setSuccess(""), 3000);
@@ -200,9 +241,9 @@ export default function StudentProfile() {
   const handleViewDocument = async (documentType) => {
     try {
       const token = localStorage.getItem("token");
-      
+
       const res = await API.get(`/profile/document/${documentType}/url`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.data.success && res.data.url) {
@@ -218,8 +259,8 @@ export default function StudentProfile() {
   };
 
   const handleDeleteDocument = async (documentType) => {
-    const docName = documentType === 'baseCv' ? 'CV' : 'Cover Letter';
-    
+    const docName = documentType === "baseCv" ? "CV" : "Cover Letter";
+
     if (!confirm(`Are you sure you want to delete your ${docName}?`)) return;
 
     setError("");
@@ -228,12 +269,12 @@ export default function StudentProfile() {
     try {
       const token = localStorage.getItem("token");
       const res = await API.delete(`/profile/document/${documentType}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setSuccess(`${docName} deleted successfully ✅`);
       fetchProfile();
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("Delete error:", err);
@@ -246,24 +287,30 @@ export default function StudentProfile() {
     if (!user || !user.jobSeekerInfo) return { complete: false, missing: [] };
 
     const missing = [];
-    
+
     if (!user.jobSeekerInfo.education?.institution) missing.push("Institution");
     if (!user.jobSeekerInfo.education?.course) missing.push("Course");
     if (!user.jobSeekerInfo.experienceLevel) missing.push("Experience Level");
     if (!user.jobSeekerInfo.bio) missing.push("Bio");
     if (!user.jobSeekerInfo.skills?.length) missing.push("Skills");
-    if (user.jobSeekerInfo.skills?.length > 7) missing.push("Too many skills (max 7)");
+    if (user.jobSeekerInfo.skills?.length > 7)
+      missing.push("Too many skills (max 7)");
     if (!user.jobSeekerInfo.links?.linkedin) missing.push("LinkedIn URL");
     if (!user.jobSeekerInfo.links?.portfolio) missing.push("Portfolio URL");
-    if (!user.jobSeekerInfo.preferences?.location?.length) missing.push("Preferred Locations");
-    if (!user.jobSeekerInfo.preferences?.jobTitles?.length) missing.push("Preferred Job Titles");
-    if (typeof user.jobSeekerInfo.preferences?.remote !== "boolean") missing.push("Remote Preference");
-    if (!user.jobSeekerInfo.documents?.baseCv?.storagePath) missing.push("CV Upload");
-     if (!user.jobSeekerInfo.documents?.coverLetter?.storagePath) missing.push("Cover Letter Upload");
+    if (!user.jobSeekerInfo.preferences?.location?.length)
+      missing.push("Preferred Locations");
+    if (!user.jobSeekerInfo.preferences?.jobTitles?.length)
+      missing.push("Preferred Job Titles");
+    if (typeof user.jobSeekerInfo.preferences?.remote !== "boolean")
+      missing.push("Remote Preference");
+    if (!user.jobSeekerInfo.documents?.baseCv?.storagePath)
+      missing.push("CV Upload");
+    if (!user.jobSeekerInfo.documents?.coverLetter?.storagePath)
+      missing.push("Cover Letter Upload");
 
     return {
       complete: user.profileCompleted,
-      missing
+      missing,
     };
   };
 
@@ -284,8 +331,10 @@ export default function StudentProfile() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-red-600">Failed to load profile. Please try again.</p>
-          <button 
+          <p className="text-red-600">
+            Failed to load profile. Please try again.
+          </p>
+          <button
             onClick={() => navigate("/home")}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg"
           >
@@ -300,7 +349,7 @@ export default function StudentProfile() {
 
   // ---------------------- UI ----------------------
   return (
-    <motion.div 
+    <motion.div
       className=" pb-10 min-h-screen bg-linear-to-br from-white via-gray-50 to-gray-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -326,7 +375,7 @@ export default function StudentProfile() {
 
         {/* Profile Completion Status */}
         {!completionStatus.complete && completionStatus.missing.length > 0 && (
-          <motion.div 
+          <motion.div
             className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -334,9 +383,12 @@ export default function StudentProfile() {
             <div className="flex items-start">
               <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
               <div>
-                <p className="font-medium text-yellow-800 mb-1">Profile Incomplete</p>
+                <p className="font-medium text-yellow-800 mb-1">
+                  Profile Incomplete
+                </p>
                 <p className="text-sm text-yellow-700">
-                  Complete your profile to start applying for jobs. Missing: {completionStatus.missing.join(", ")}
+                  Complete your profile to start applying for jobs. Missing:{" "}
+                  {completionStatus.missing.join(", ")}
                 </p>
               </div>
             </div>
@@ -344,7 +396,7 @@ export default function StudentProfile() {
         )}
 
         {completionStatus.complete && (
-          <motion.div 
+          <motion.div
             className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -357,15 +409,15 @@ export default function StudentProfile() {
         )}
 
         {/* Profile Header */}
-        <motion.div 
+        <motion.div
           className="mb-4 flex flex-col md:flex-row md:justify-between border rounded-2xl p-6 shadow-md bg-white items-center hover:shadow-lg transition-all"
           whileHover={{ scale: 1.01 }}
         >
           <div>
             <p className="pb-1 text-xl font-medium">{user.fullName}</p>
             <p className="pb-1 text-[14px] text-gray-500">
-              {user.jobSeekerInfo?.skills?.length > 0 
-                ? user.jobSeekerInfo.skills.join(", ") 
+              {user.jobSeekerInfo?.skills?.length > 0
+                ? user.jobSeekerInfo.skills.join(", ")
                 : "No skills added"}
             </p>
             {user.jobSeekerInfo?.experienceLevel && (
@@ -375,7 +427,7 @@ export default function StudentProfile() {
             )}
           </div>
 
-          <motion.div 
+          <motion.div
             className="flex gap-2 items-center p-2 rounded-3xl border border-gray-200 text-gray-400 text-sm cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => setEditMode(!editMode)}
             whileHover={{ scale: 1.05 }}
@@ -387,18 +439,25 @@ export default function StudentProfile() {
         </motion.div>
 
         {/* Personal Info */}
-        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
-          <p className="pb-3 font-semibold text-gray-800">Personal Information</p>
+        <motion.div
+          className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all"
+          whileHover={{ scale: 1.01 }}
+        >
+          <p className="pb-3 font-semibold text-gray-800">
+            Personal Information
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Full Name</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Full Name
+              </p>
               {editMode ? (
-                <input 
-                  type="text" 
-                  name="fullName" 
-                  value={formData.fullName} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               ) : (
                 <p className="text-gray-800">{user.fullName}</p>
@@ -406,14 +465,16 @@ export default function StudentProfile() {
             </div>
 
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Phone</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Phone
+              </p>
               {editMode ? (
-                <input 
-                  type="tel" 
-                  name="phone" 
-                  value={formData.phone} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               ) : (
                 <p className="text-gray-800">{user.phone || "Not provided"}</p>
@@ -423,17 +484,19 @@ export default function StudentProfile() {
             <div className="col-span-1 md:col-span-2">
               <p className="text-[12px] text-gray-500 mb-1 font-medium">Bio</p>
               {editMode ? (
-                <textarea 
-                  name="bio" 
-                  value={formData.bio} 
-                  onChange={handleInputChange} 
-                  rows="3" 
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  rows="3"
                   maxLength="500"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Tell us about yourself..."
                 />
               ) : (
-                <p className="text-gray-800">{user.jobSeekerInfo?.bio || "No bio provided"}</p>
+                <p className="text-gray-800">
+                  {user.jobSeekerInfo?.bio || "No bio provided"}
+                </p>
               )}
               {editMode && (
                 <p className="text-[10px] text-gray-400 mt-1">
@@ -445,48 +508,63 @@ export default function StudentProfile() {
         </motion.div>
 
         {/* Academic Info */}
-        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
-          <p className="pb-3 font-semibold text-gray-800">Academic Information</p>
+        <motion.div
+          className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all"
+          whileHover={{ scale: 1.01 }}
+        >
+          <p className="pb-3 font-semibold text-gray-800">
+            Academic Information
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Institution</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Institution
+              </p>
               {editMode ? (
-                <input 
-                  type="text" 
-                  name="educationInstitution" 
-                  value={formData.educationInstitution} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="text"
+                  name="educationInstitution"
+                  value={formData.educationInstitution}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. University of Lagos"
                 />
               ) : (
-                <p className="text-gray-800">{user.jobSeekerInfo?.education?.institution || "Not provided"}</p>
+                <p className="text-gray-800">
+                  {user.jobSeekerInfo?.education?.institution || "Not provided"}
+                </p>
               )}
             </div>
 
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Course</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Course
+              </p>
               {editMode ? (
-                <input 
-                  type="text" 
-                  name="educationCourse" 
-                  value={formData.educationCourse} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="text"
+                  name="educationCourse"
+                  value={formData.educationCourse}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Computer Science"
                 />
               ) : (
-                <p className="text-gray-800">{user.jobSeekerInfo?.education?.course || "Not provided"}</p>
+                <p className="text-gray-800">
+                  {user.jobSeekerInfo?.education?.course || "Not provided"}
+                </p>
               )}
             </div>
 
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Experience Level</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Experience Level
+              </p>
               {editMode ? (
-                <select 
-                  name="experienceLevel" 
-                  value={formData.experienceLevel} 
-                  onChange={handleInputChange} 
+                <select
+                  name="experienceLevel"
+                  value={formData.experienceLevel}
+                  onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Level</option>
@@ -496,7 +574,9 @@ export default function StudentProfile() {
                   <option value="mid">Mid</option>
                 </select>
               ) : (
-                <p className="text-gray-800 capitalize">{user.jobSeekerInfo?.experienceLevel || "Not provided"}</p>
+                <p className="text-gray-800 capitalize">
+                  {user.jobSeekerInfo?.experienceLevel || "Not provided"}
+                </p>
               )}
             </div>
 
@@ -505,18 +585,22 @@ export default function StudentProfile() {
                 Skills (comma-separated, max 7)
               </p>
               {editMode ? (
-                <input 
-                  type="text" 
-                  name="skills" 
-                  value={Array.isArray(formData.skills) ? formData.skills.join(", ") : formData.skills} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="text"
+                  name="skills"
+                  value={
+                    Array.isArray(formData.skills)
+                      ? formData.skills.join(", ")
+                      : formData.skills
+                  }
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. JavaScript, React, Node.js"
                 />
               ) : (
                 <p className="text-gray-800">
-                  {user.jobSeekerInfo?.skills?.length > 0 
-                    ? user.jobSeekerInfo.skills.join(", ") 
+                  {user.jobSeekerInfo?.skills?.length > 0
+                    ? user.jobSeekerInfo.skills.join(", ")
                     : "No skills added"}
                 </p>
               )}
@@ -525,65 +609,80 @@ export default function StudentProfile() {
         </motion.div>
 
         {/* Job Preferences */}
-        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
+        <motion.div
+          className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all"
+          whileHover={{ scale: 1.01 }}
+        >
           <p className="pb-3 font-semibold text-gray-800">Job Preferences</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="col-span-1 md:col-span-2">
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Preferred Locations</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Preferred Locations
+              </p>
               {editMode ? (
-                <input 
-                  type="text" 
-                  name="preferencesLocation" 
-                  value={Array.isArray(formData.preferencesLocation) 
-                    ? formData.preferencesLocation.join(", ") 
-                    : formData.preferencesLocation} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="text"
+                  name="preferencesLocation"
+                  value={
+                    Array.isArray(formData.preferencesLocation)
+                      ? formData.preferencesLocation.join(", ")
+                      : formData.preferencesLocation
+                  }
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Lagos, Abuja, Remote"
                 />
               ) : (
                 <p className="text-gray-800">
-                  {user.jobSeekerInfo?.preferences?.location?.length > 0 
-                    ? user.jobSeekerInfo.preferences.location.join(", ") 
+                  {user.jobSeekerInfo?.preferences?.location?.length > 0
+                    ? user.jobSeekerInfo.preferences.location.join(", ")
                     : "Not specified"}
                 </p>
               )}
             </div>
 
             <div className="col-span-1 md:col-span-2">
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Preferred Job Titles</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Preferred Job Titles
+              </p>
               {editMode ? (
-                <input 
-                  type="text" 
-                  name="preferencesJobTitles" 
-                  value={Array.isArray(formData.preferencesJobTitles) 
-                    ? formData.preferencesJobTitles.join(", ") 
-                    : formData.preferencesJobTitles} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="text"
+                  name="preferencesJobTitles"
+                  value={
+                    Array.isArray(formData.preferencesJobTitles)
+                      ? formData.preferencesJobTitles.join(", ")
+                      : formData.preferencesJobTitles
+                  }
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Software Engineer, Frontend Developer"
                 />
               ) : (
                 <p className="text-gray-800">
-                  {user.jobSeekerInfo?.preferences?.jobTitles?.length > 0 
-                    ? user.jobSeekerInfo.preferences.jobTitles.join(", ") 
+                  {user.jobSeekerInfo?.preferences?.jobTitles?.length > 0
+                    ? user.jobSeekerInfo.preferences.jobTitles.join(", ")
                     : "Not specified"}
                 </p>
               )}
             </div>
 
             <div className="col-span-1">
-              <p className="text-[12px] text-gray-500 mb-2 font-medium">Remote Work</p>
+              <p className="text-[12px] text-gray-500 mb-2 font-medium">
+                Remote Work
+              </p>
               {editMode ? (
                 <label className="flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    name="preferencesRemote" 
-                    checked={formData.preferencesRemote} 
-                    onChange={handleInputChange} 
+                  <input
+                    type="checkbox"
+                    name="preferencesRemote"
+                    checked={formData.preferencesRemote}
+                    onChange={handleInputChange}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Open to remote positions</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    Open to remote positions
+                  </span>
                 </label>
               ) : (
                 <p className="text-gray-800">
@@ -595,59 +694,70 @@ export default function StudentProfile() {
         </motion.div>
 
         {/* Links */}
-        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
+        <motion.div
+          className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all"
+          whileHover={{ scale: 1.01 }}
+        >
           <p className="pb-3 font-semibold text-gray-800">Professional Links</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">LinkedIn</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                LinkedIn
+              </p>
               {editMode ? (
-                <input 
-                  type="url" 
-                  name="linksLinkedin" 
-                  value={formData.linksLinkedin} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="url"
+                  name="linksLinkedin"
+                  value={formData.linksLinkedin}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="https://linkedin.com/in/username"
                 />
               ) : (
                 <p className="text-gray-800 truncate">
                   {user.jobSeekerInfo?.links?.linkedin ? (
-                    <a 
-                      href={user.jobSeekerInfo?.links?.linkedin} 
-                      target="_blank" 
+                    <a
+                      href={user.jobSeekerInfo?.links?.linkedin}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
                       {user.jobSeekerInfo?.links?.linkedin}
                     </a>
-                  ) : "Not provided"}
+                  ) : (
+                    "Not provided"
+                  )}
                 </p>
               )}
             </div>
 
             <div>
-              <p className="text-[12px] text-gray-500 mb-1 font-medium">Portfolio</p>
+              <p className="text-[12px] text-gray-500 mb-1 font-medium">
+                Portfolio
+              </p>
               {editMode ? (
-                <input 
-                  type="url" 
-                  name="linksPortfolio" 
-                  value={formData.linksPortfolio} 
-                  onChange={handleInputChange} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                <input
+                  type="url"
+                  name="linksPortfolio"
+                  value={formData.linksPortfolio}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="https://yourportfolio.com"
                 />
               ) : (
                 <p className="text-gray-800 truncate">
                   {user.jobSeekerInfo?.links?.portfolio ? (
-                    <a 
-                      href={user.jobSeekerInfo?.links?.portfolio} 
-                      target="_blank" 
+                    <a
+                      href={user.jobSeekerInfo?.links?.portfolio}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
                       {user.jobSeekerInfo?.links?.portfolio}
                     </a>
-                  ) : "Not provided"}
+                  ) : (
+                    "Not provided"
+                  )}
                 </p>
               )}
             </div>
@@ -655,7 +765,10 @@ export default function StudentProfile() {
         </motion.div>
 
         {/* Documents */}
-        <motion.div className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all" whileHover={{ scale: 1.01 }}>
+        <motion.div
+          className="mb-4 border rounded-lg p-5 border-gray-100 shadow-sm bg-white hover:shadow-lg transition-all"
+          whileHover={{ scale: 1.01 }}
+        >
           <p className="pb-3 font-semibold text-gray-800">Documents</p>
 
           {uploading && (
@@ -663,45 +776,44 @@ export default function StudentProfile() {
               Uploading... Please wait
             </div>
           )}
-<div className=" space-y-4">
-          <div className="space-y-3">
-            <DocumentUpload
-              label="CV / Resume"
-              documentType="baseCv"
-              document={user.jobSeekerInfo?.documents?.baseCv}
-              onUpload={handleFileUpload}
-              onDelete={handleDeleteDocument}
-              onView={handleViewDocument}
-              required={true}
-            />
-          </div>
+          <div className=" space-y-4">
+            <div className="space-y-3">
+              <DocumentUpload
+                label="CV / Resume"
+                documentType="baseCv"
+                document={user.jobSeekerInfo?.documents?.baseCv}
+                onUpload={handleFileUpload}
+                onDelete={handleDeleteDocument}
+                onView={handleViewDocument}
+                required={true}
+              />
+            </div>
 
-          
-          <div className="space-y-3">
-            <DocumentUpload
-              label="Cover Letter"
-              documentType="coverLetter"
-              document={user.jobSeekerInfo?.documents?.coverLetter}
-              onUpload={handleFileUpload}
-              onDelete={handleDeleteDocument}
-              onView={handleViewDocument}
-              required={true}
-            />
-          </div>
+            <div className="space-y-3">
+              <DocumentUpload
+                label="Cover Letter"
+                documentType="coverLetter"
+                document={user.jobSeekerInfo?.documents?.coverLetter}
+                onUpload={handleFileUpload}
+                onDelete={handleDeleteDocument}
+                onView={handleViewDocument}
+                required={true}
+              />
+            </div>
           </div>
         </motion.div>
 
         {/* Save Button */}
         {editMode && (
           <div className="flex justify-end space-x-3 mb-6">
-            <button 
-              onClick={() => setEditMode(false)} 
+            <button
+              onClick={() => setEditMode(false)}
               className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors font-medium"
             >
               Cancel
             </button>
-            <button 
-              onClick={handleSave} 
+            <button
+              onClick={handleSave}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
             >
               Save Changes

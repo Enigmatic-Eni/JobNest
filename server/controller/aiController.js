@@ -1,51 +1,49 @@
-const User = require('../models/user');
-const Job = require('../models/job')
-const {extractTextFromCV} = require('../services/cvParser')
-const { tailorCV, generateCoverLetter} = require('../services/geminiService')
-const {generateAndUploadDocument} = require('../services/documentGenerator')
+const User = require("../models/user");
+const Job = require("../models/job");
+const supabase = require("../config/supabase");
+const { extractTextFromCV } = require("../services/cvParser");
+const { tailorCV, generateCoverLetter } = require("../services/geminiService");
+const { generateAndUploadDocument } = require("../services/documentGenerator");
 
-const getUserCVText = async(user)=>{
-    const cvDoc = user.jobSeekerInfo?.documents?.baseCv;
+// ---------------------- SHARED HELPER ----------------------
+const getUserCVText = async (user) => {
+  const cvDoc = user.jobSeekerInfo?.documents?.baseCv;
 
-    if(!cvDoc.storagePath){
-        const err =  new Error("Please upload your CV before generating documents");
-        err.satus = 400;
-        throw err;
-    }
+  console.log("🔍 CV doc:", cvDoc); // DEBUG
 
-    const cvText = await extractTextFromCV(cvDoc.storagePath, cvDoc.mimeType);
+  if (!cvDoc?.storagePath) {
+    const err = new Error("Please upload your CV first before generating documents");
+    err.status = 400;
+    throw err;
+  }
 
-    if(!cvText || cv.Text.trim().length < 50){
-        const err = new Error("Could not read your CV. Please make sure it is not a scanned image and contains selectable text.")
-        err.status = 400;
-        throw err;
-    }
+  const cvText = await extractTextFromCV(cvDoc.storagePath, cvDoc.mimeType);
+  
+  // ✅ SAFE: cvText is ALWAYS string now
+  if (!cvText || cvText.trim().length === 0) {
+    const err = new Error("Could not read your CV. Please make sure it is not a scanned image and contains selectable text.");
+    err.status = 400;
+    throw err;
+  }
 
-    return cvText;
-}
+  return cvText;
+};
+// ---------------------- GENERATE TAILORED CV ----------------------
+const generateCV = async (req, res) => {
+  try {
+    const userId = req.userInfo.userId;
+    const { jobId } = req.params;
 
-const generateCV = async(req, res)=>{
-    try {
-        const userId = req.userInfo.userId;
-        const {jobId} = req.params;
+    const [user, job] = await Promise.all([
+      User.findById(userId),
+      Job.findById(jobId)
+    ]);
 
-        const [user, job]= await Promise.all([
-            User.findById(userId),
-            Job.findById(jobId)
-        ]);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!job) return res.status(404).json({ success: false, message: "Job not found" });
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    if (!job) {
-      return res.status(404).json({ success: false, message: "Job not found" });
-    }
-
-    // Step 1 — Extract text from user's uploaded CV
     const cvText = await getUserCVText(user);
 
-    // Step 2 — Send CV text + job description to Gemini
-    // Gemini returns a tailored CV as plain text
     const tailoredContent = await tailorCV(
       cvText,
       job.description,
@@ -53,7 +51,6 @@ const generateCV = async(req, res)=>{
       job.company
     );
 
-    // Step 3 — Convert tailored text to DOCX and upload to Supabase
     const { docxUrl, docxPath } = await generateAndUploadDocument(
       tailoredContent,
       userId,
@@ -61,13 +58,10 @@ const generateCV = async(req, res)=>{
       "cv"
     );
 
-    // Step 4 — Save the generated doc URL to the user's record in MongoDB
-    // This lets us show previously generated docs without regenerating
     if (!user.jobSeekerInfo.generatedDocs) {
       user.jobSeekerInfo.generatedDocs = new Map();
     }
 
-    // Get existing entry for this job if it exists
     const existing = user.jobSeekerInfo.generatedDocs.get(jobId) || {};
 
     user.jobSeekerInfo.generatedDocs.set(jobId, {
@@ -79,8 +73,6 @@ const generateCV = async(req, res)=>{
       }
     });
 
-    // markModified tells Mongoose that the Map changed
-    // Without this, Mongoose won't detect the change and won't save it
     user.markModified("jobSeekerInfo.generatedDocs");
     await user.save();
 
@@ -91,7 +83,6 @@ const generateCV = async(req, res)=>{
     });
 
   } catch (error) {
-    // If it's our custom error with a status, use that status
     if (error.status) {
       return res.status(error.status).json({
         success: false,
@@ -114,14 +105,9 @@ const generateCoverLetterDoc = async (req, res) => {
       Job.findById(jobId)
     ]);
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    if (!job) {
-      return res.status(404).json({ success: false, message: "Job not found" });
-    }
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!job) return res.status(404).json({ success: false, message: "Job not found" });
 
-    // Same flow as CV — extract text, send to Gemini, generate DOCX
     const cvText = await getUserCVText(user);
 
     const coverLetterContent = await generateCoverLetter(
@@ -174,4 +160,71 @@ const generateCoverLetterDoc = async (req, res) => {
   }
 };
 
-module.exports = { generateCV, generateCoverLetterDoc };
+// ---------------------- GET GENERATED DOCS ----------------------
+// Called when user opens a job detail page
+// Checks if they already generated docs for this job
+// If yes, regenerates fresh signed URLs from the stored paths
+// This means even after 7 days, the download links work again
+const getGeneratedDocs = async (req, res) => {
+  try {
+    const userId = req.userInfo.userId;
+    const { jobId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Check if user has generated any docs for this job
+    const existingDocs = user.jobSeekerInfo.generatedDocs?.get(jobId);
+
+    // No docs generated yet for this job — return nulls
+    // Frontend will show the generate buttons in their default state
+    if (!existingDocs) {
+      return res.status(200).json({
+        success: true,
+        cv: null,
+        coverLetter: null
+      });
+    }
+
+    // Docs exist — regenerate fresh signed URLs from stored paths
+    // The file is still in Supabase even if the old URL expired
+    let cvUrl = null;
+    let coverLetterUrl = null;
+
+    // Regenerate CV signed URL if CV was previously generated
+    if (existingDocs.cv?.docxPath) {
+      const { data, error } = await supabase.storage
+        .from("documents")
+        .createSignedUrl(existingDocs.cv.docxPath, 60 * 60 * 24 * 7);
+
+      if (!error) {
+        cvUrl = data.signedUrl;
+      }
+    }
+
+    // Regenerate cover letter signed URL if cover letter was previously generated
+    if (existingDocs.coverLetter?.docxPath) {
+      const { data, error } = await supabase.storage
+        .from("documents")
+        .createSignedUrl(existingDocs.coverLetter.docxPath, 60 * 60 * 24 * 7);
+
+      if (!error) {
+        coverLetterUrl = data.signedUrl;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      cv: cvUrl ? { docxUrl: cvUrl } : null,
+      coverLetter: coverLetterUrl ? { docxUrl: coverLetterUrl } : null
+    });
+
+  } catch (error) {
+    console.error("Get generated docs error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+module.exports = { generateCV, generateCoverLetterDoc, getGeneratedDocs };

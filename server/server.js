@@ -10,6 +10,7 @@ const profileRoutes = require("./routes/profile-route");
 const scraperRoute = require("./routes/scraper-route");
 const { runScraper } = require("./services/scraper");
 const jobsRoute = require("./routes/jobs-route");
+const aiRoutes = require('./routes/ai-routes')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,7 @@ app.use("/auth", authRoute);
 app.use("/profile", profileRoutes);
 app.use("/scraper", scraperRoute);
 app.use("/jobs", jobsRoute);
+app.use('/ai', aiRoutes)
 
 // ---------------------- SCRAPER ----------------------
 // Runs once immediately when server starts

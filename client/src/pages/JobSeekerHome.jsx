@@ -74,7 +74,7 @@ export default function JobSeekerHome() {
           transition={{ delay: 0.2 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold">
-            Hey {user?.fullName?.split(" ")[0] || "there"} 👋
+            Hey {user?.fullName?.split(" ")[0] || "there"} 
           </h1>
           <p className="text-gray-400 text-lg mt-1">
             Here are the best jobs we found for you today.

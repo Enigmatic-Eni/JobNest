@@ -89,7 +89,7 @@ const generateAndUploadDocument = async (content, userId, jobId, docType) => {
   const filePath = `users/${userId}/generated/${docType}_${jobId}.docx`;
 
   // Convert Gemini text to DOCX buffer
-  const docxBuffer = await generateDocxBuffer(content);
+  const docxBuffer = await generateBuffer(content);
 
   // Upload to Supabase and get signed URL
   const result = await uploadToSupabase(
