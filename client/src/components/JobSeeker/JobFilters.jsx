@@ -1,3 +1,4 @@
+import { Logs } from 'lucide-react';
 import React, {useState} from 'react'
 
 const sources = [
@@ -26,7 +27,9 @@ export default function JobFilters({onFilterChange}) {
 
 
   return (
-    <div className="space-y-6">
+    <div >
+
+    <div className="space-y-6 lg:block hidden ">
       <div>
         <h2 className="font-semibold text-lg mb-3">Filters</h2>
 
@@ -69,6 +72,11 @@ export default function JobFilters({onFilterChange}) {
           Reset
         </button>
       </div>
+    </div>
+
+<div className='lg:hidden block'>
+    <Logs/>
+    </div>
     </div>
   )
 }

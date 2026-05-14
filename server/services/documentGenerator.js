@@ -1,70 +1,262 @@
-const {Document, Paragraph, TextRun, Packer} = require('docx')
-const supabase = require('../config/supabase')
+const {
+  Document,
+  Paragraph,
+  TextRun,
+  Packer,
+  AlignmentType,
+  BorderStyle,
+  ExternalHyperlink
+} = require("docx");
+const supabase = require("../config/supabase");
 
-const generateBuffer = async(content)=>{
-    const lines = content.split('\n').filter(line=>line.trim());
+// ---------------------- HELPERS ----------------------
 
-    const paragraphs = lines.map((line)=>{
-        const trimmed = line.trim();
+// Check if a string is a URL
+const isUrl = (text) => {
+  return (
+    text.startsWith("http://") ||
+    text.startsWith("https://") ||
+    text.startsWith("www.")
+  );
+};
 
-        // if the text is a header (Upper case, make it bold and have a font size of 13)
-        if(trimmed === trimmed.toUpperCase() &&
-            trimmed.length > 2 &&
-            !trimmed.includes("@")&&
-            !trimmed.includes("|")){
-                return new Paragraph({
-                    children: [new TextRun({text: trimmed, bold: true, size: 26})],
-                    spacing: {before: 300, after: 100}
-                });
+// Create a clickable hyperlink TextRun
+const createHyperlink = (url, displayText) => {
+  const fullUrl = url.startsWith("www.") ? `https://${url}` : url;
+  return new ExternalHyperlink({
+    link: fullUrl,
+    children: [
+      new TextRun({
+        text: displayText || url,
+        style: "Hyperlink",
+        size: 20,
+        color: "0066cc",
+        underline: { type: "single" }
+      })
+    ]
+  });
+};
 
-            }
+// Parse the contact line — split by | and make URLs/emails clickable
+// e.g. "john@email.com | +234 814 639 7327 | https://linkedin.com | https://portfolio.com"
+const parseContactLine = (line) => {
+  const parts = line.split("|").map((p) => p.trim());
+  const runs = [];
 
-               if (trimmed.startsWith("•") || trimmed.startsWith("-")) {
-      return new Paragraph({
-        children: [
-          new TextRun({
-            text: trimmed.replace(/^[•-]\s*/, ""), // remove the bullet symbol
-            size: 22
-          })
-        ],
-        bullet: { level: 0 },
-        spacing: { after: 60 }
-      });
+  parts.forEach((part, index) => {
+    if (isUrl(part)) {
+      runs.push(createHyperlink(part, part));
+    } else if (part.includes("@")) {
+      // Email — mailto link
+      runs.push(
+        new ExternalHyperlink({
+          link: `mailto:${part}`,
+          children: [
+            new TextRun({
+              text: part,
+              style: "Hyperlink",
+              size: 20,
+              color: "0066cc",
+              underline: { type: "single" }
+            })
+          ]
+        })
+      );
+    } else {
+      runs.push(new TextRun({ text: part, size: 20, color: "444444" }));
     }
-    
-     return new Paragraph({
-      children: [new TextRun({ text: trimmed, size: 22 })],
-      spacing: { after: 80 }
-    });
 
-    })
-
-    // Build the Word document
-  const doc = new Document({
-    sections: [{ properties: {}, children: paragraphs }]
+    // Separator between parts
+    if (index < parts.length - 1) {
+      runs.push(new TextRun({ text: " | ", size: 20, color: "888888" }));
+    }
   });
 
-  // Convert to buffer — a binary representation of the file
+  return runs;
+};
+
+// Parse a line that may contain a URL mixed with text
+// e.g. "GitHub: https://github.com/user or some text https://example.com"
+const parseMixedLine = (line) => {
+  const urlRegex = /(https?:\/\/\S+|www\.\S+)/g;
+  const parts = line.split(urlRegex);
+  const runs = [];
+
+  parts.forEach((part) => {
+    if (isUrl(part)) {
+      runs.push(createHyperlink(part, part));
+    } else if (part.trim()) {
+      runs.push(new TextRun({ text: part, size: 21, color: "333333" }));
+    }
+  });
+
+  return runs;
+};
+
+// ---------------------- GENERATE DOCX BUFFER ----------------------
+const generateDocxBuffer = async (content) => {
+  const lines = content.split("\n").filter((line) => line.trim());
+  const paragraphs = [];
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    // First line — candidate name, large and centered
+    if (index === 0) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: trimmed, bold: true, size: 36, color: "1a1a1a" })
+          ],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 80 }
+        })
+      );
+      return;
+    }
+
+    // Contact line — contains | and @ or URLs
+    if (trimmed.includes("|") && (trimmed.includes("@") || isUrl(trimmed))) {
+      paragraphs.push(
+        new Paragraph({
+          children: parseContactLine(trimmed),
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 }
+        })
+      );
+      return;
+    }
+
+    // Section headers — ALL CAPS lines
+    if (
+      trimmed === trimmed.toUpperCase() &&
+      trimmed.length > 2 &&
+      !trimmed.includes("@") &&
+      !trimmed.includes("|") &&
+      !trimmed.match(/^\d/)
+    ) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: trimmed, bold: true, size: 24, color: "1a1a1a" })
+          ],
+          spacing: { before: 300, after: 100 },
+          border: {
+            bottom: {
+              color: "cccccc",
+              space: 4,
+              style: BorderStyle.SINGLE,
+              size: 6
+            }
+          }
+        })
+      );
+      return;
+    }
+
+    // Bullet points
+    if (trimmed.startsWith("-") || trimmed.startsWith("•")) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: trimmed.replace(/^[-•]\s*/, ""),
+              size: 21,
+              color: "333333"
+            })
+          ],
+          bullet: { level: 0 },
+          spacing: { after: 60 }
+        })
+      );
+      return;
+    }
+
+    // Job title / company lines — contain — or –
+    if (trimmed.includes("—") || trimmed.includes("–")) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: trimmed, bold: true, size: 22, color: "222222" })
+          ],
+          spacing: { before: 120, after: 60 }
+        })
+      );
+      return;
+    }
+
+    // Standalone URL lines — full line is just a URL
+    if (isUrl(trimmed) && !trimmed.includes(" ")) {
+      paragraphs.push(
+        new Paragraph({
+          children: [createHyperlink(trimmed, trimmed)],
+          spacing: { after: 60 }
+        })
+      );
+      return;
+    }
+
+    // Lines that contain URLs mixed with text
+    if (trimmed.includes("http") || trimmed.includes("www.")) {
+      paragraphs.push(
+        new Paragraph({
+          children: parseMixedLine(trimmed),
+          spacing: { after: 80 }
+        })
+      );
+      return;
+    }
+
+    // Regular text
+    paragraphs.push(
+      new Paragraph({
+        children: [new TextRun({ text: trimmed, size: 21, color: "333333" })],
+        spacing: { after: 80 }
+      })
+    );
+  });
+
+  const doc = new Document({
+    styles: {
+      characterStyles: [
+        {
+          id: "Hyperlink",
+          name: "Hyperlink",
+          run: {
+            color: "0066cc",
+            underline: { type: "single" }
+          }
+        }
+      ]
+    },
+    sections: [
+      {
+        properties: {
+          page: {
+            margin: { top: 720, right: 720, bottom: 720, left: 720 }
+          }
+        },
+        children: paragraphs
+      }
+    ]
+  });
+
   return await Packer.toBuffer(doc);
-}
+};
 
-
-// Takes the buffer, uploads it to Supabase, returns a signed URL
+// ---------------------- UPLOAD TO SUPABASE ----------------------
 const uploadToSupabase = async (buffer, filePath, contentType) => {
-  // Upload the buffer to Supabase storage
   const { error } = await supabase.storage
     .from("documents")
     .upload(filePath, buffer, {
       contentType,
-      upsert: true // overwrite if file already exists for this job
+      upsert: true
     });
 
   if (error) {
     console.error("Supabase upload error:", error);
     throw new Error("Failed to upload generated document");
   }
-
-  // Generate a signed URL valid for 7 days
 
   const { data: signedData, error: signedError } = await supabase.storage
     .from("documents")
@@ -82,16 +274,24 @@ const uploadToSupabase = async (buffer, filePath, contentType) => {
 };
 
 // ---------------------- MAIN FUNCTION ----------------------
-// Called by the controller — generates DOCX and uploads to Supabase
-const generateAndUploadDocument = async (content, userId, jobId, docType) => {
-  // Build the file path in Supabase storage
-  // e.g. users/abc123/generated/cv_jobId123.docx
-  const filePath = `users/${userId}/generated/${docType}_${jobId}.docx`;
+const generateAndUploadDocument = async (
+  content,
+  userId,
+  jobId,
+  docType,
+  userName = "document"
+) => {
+  // Clean username for use in filename
+  const cleanName = userName
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_]/g, "");
 
-  // Convert Gemini text to DOCX buffer
-  const docxBuffer = await generateBuffer(content);
+  // e.g. users/abc123/generated/motunrayo_sanni_cv_jobId123.docx
+  const filePath = `users/${userId}/generated/${cleanName}_${docType}_${jobId}.docx`;
 
-  // Upload to Supabase and get signed URL
+  const docxBuffer = await generateDocxBuffer(content);
+
   const result = await uploadToSupabase(
     docxBuffer,
     filePath,
