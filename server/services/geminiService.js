@@ -1,13 +1,51 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+// Models in order of preference — if one fails, try the next
+const MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-1.5-flash",
+];
+
+// Try each model until one works
+const generateWithFallback = async (prompt) => {
+  let lastError;
+
+  for (const modelName of MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      console.log(`✅ Used model: ${modelName}`);
+      return result.response.text();
+    } catch (error) {
+      console.warn(`⚠️ Model ${modelName} failed: ${error.message}`);
+      lastError = error;
+
+      // Only retry on 503 (overloaded) or 429 (quota)
+      // For other errors like 404 (model not found), skip immediately
+      if (
+        !error.message.includes("503") &&
+        !error.message.includes("429") &&
+        !error.message.includes("overloaded") &&
+        !error.message.includes("high demand")
+      ) {
+        continue;
+      }
+    }
+  }
+
+  // All models failed
+  throw new Error(
+    `All models unavailable. Last error: ${lastError?.message}`
+  );
+};
 
 // ---------------------- TAILOR CV ----------------------
 const tailorCV = async (cvText, jobDescription, jobTitle, company, userProfile = {}) => {
   const { fullName, email, phone, linkedin, portfolio, allLinks = [] } = userProfile;
 
-  // Build a links section so Gemini knows all URLs that exist in the CV
   const linksSection =
     allLinks.length > 0
       ? `\nALL LINKS FOUND IN CANDIDATE'S CV (preserve and include these where relevant):
@@ -72,8 +110,7 @@ EDUCATION
 [Degree, Institution, Year]`;
 
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await generateWithFallback(prompt);
   } catch (error) {
     console.error("Gemini CV tailoring failed:", error.message);
     throw new Error("Failed to generate tailored CV");
@@ -140,8 +177,7 @@ Sincerely,
 ${fullName || "[Full Name]"}`;
 
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await generateWithFallback(prompt);
   } catch (error) {
     console.error("Gemini cover letter generation failed:", error.message);
     throw new Error("Failed to generate cover letter");
